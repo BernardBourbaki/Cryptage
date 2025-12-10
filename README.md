@@ -51,7 +51,7 @@ Aucune installation nécessaire !
 
 ## 📖 Documentation complète
 
-Pour la documentation détaillée, consultez [README.txt](README.txt)
+Pour la documentation détaillée, consultez [README.txt](https://github.com/BernardBourbaki/cryptage-v36.1/blob/docs/README.txt)
 
 ## 🔐 Sécurité et Bonnes Pratiques
 
