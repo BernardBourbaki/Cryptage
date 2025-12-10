@@ -1,0 +1,12 @@
+# Exécutables
+*.exe
+*.dll
+
+# Objets compilés
+*.o
+*.obj
+
+# Temporaires
+*.log
+*.tmp
+test_*.crypt
