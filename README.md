@@ -33,7 +33,7 @@
 
 ### Windows (Exécutable)
 
-1. Téléchargez `Cryptage_V37.exe` depuis [Releases](https://github.com/BernardBourbaki/cryptage-v37/releases/latest)
+1. Téléchargez `Cryptage_V37.exe` depuis [Releases](https://github.com/BernardBourbaki/Cryptage/releases/latest)
 2. Vérifiez le checksum SHA256 (voir `checksums.txt`)
 3. Lancez l'exécutable (pas d'installation requise)
 
@@ -164,3 +164,4 @@ Ce logiciel est fourni "tel quel", sans garantie d'aucune sorte. L'auteur ne peu
 
 
 **[English version](README.en.md)** 🇬🇧
+
