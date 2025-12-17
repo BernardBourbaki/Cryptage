@@ -1,7 +1,7 @@
 /**
  * Cryptage_UI.c
  * Interface utilisateur unique - Version 37
- * (c) Bernard DÉMARET - 2025
+ * (c) Bernard DÃ‰MARET - 2025
  */
 
 #include "Cryptage.h"
@@ -10,7 +10,7 @@
 #include <commctrl.h>
 
 /* ========================================
- * IDENTIFIANTS DES CONTRÔLES
+ * IDENTIFIANTS DES CONTRÃ”LES
  * ======================================== */
 
 #define ID_KEY_EDIT         1001
@@ -42,7 +42,7 @@
 #define COLOR_CLEAR         RGB(244, 67, 54)      // Rouge
 
 /* ========================================
- * DÉCLARATIONS DES FONCTIONS
+ * DÃ‰CLARATIONS DES FONCTIONS
  * ======================================== */
 
 void create_ui_controls(HWND hwnd, HINSTANCE hInstance, AppContext* ctx);
@@ -59,11 +59,11 @@ DWORD WINAPI encrypt_thread(LPVOID lpParam);
 DWORD WINAPI decrypt_thread(LPVOID lpParam);
 
 /* ========================================
- * CRÉATION DES CONTRÔLES
+ * CRÃ‰ATION DES CONTRÃ”LES
  * ======================================== */
 
 /**
- * Crée tous les contrôles de l'interface
+ * CrÃ©e tous les contrÃ´les de l'interface
  */
 void create_ui_controls(HWND hwnd, HINSTANCE hInstance, AppContext* ctx) {
     InitCommonControls();
@@ -74,7 +74,7 @@ void create_ui_controls(HWND hwnd, HINSTANCE hInstance, AppContext* ctx) {
     // ========================================
     // LIGNE 1 : Mot de passe
     // ========================================
-    CreateWindowA("Static", "Mot de passe [8-64 caractères] :", 
+    CreateWindowA("Static", "Mot de passe [8-64 caractÃ¨res] :", 
         WS_VISIBLE | WS_CHILD, 10, y, 200, 20, 
         hwnd, NULL, hInstance, NULL);
     
@@ -95,12 +95,10 @@ void create_ui_controls(HWND hwnd, HINSTANCE hInstance, AppContext* ctx) {
     // PARTIE CENTRALE : 2 zones de texte + 7 boutons
     // ========================================
     int leftPanelWidth = 500;
-    int rightPanelX = 520;
-    int buttonWidth = 270;
     int textAreaHeight = 205;
     
-    // Zone Entrée
-    CreateWindowA("Static", "Entrée :", 
+    // Zone EntrÃ©e
+    CreateWindowA("Static", "EntrÃ©e :", 
         WS_VISIBLE | WS_CHILD, 10, y, 100, 20, 
         hwnd, NULL, hInstance, NULL);
     
@@ -125,63 +123,63 @@ void create_ui_controls(HWND hwnd, HINSTANCE hInstance, AppContext* ctx) {
     SendMessageA(ctx->hOutputEdit, WM_SETFONT, (WPARAM)ctx->hFont, TRUE);
     
     // ========================================
-    // PANNEAU DROIT : 7 BOUTONS (réorganisés verticalement)
+    // PANNEAU DROIT : 4 groupes avec espaces doublÃ©s entre les groupes
     // ========================================
-    int btnY = y;
-    int spacer = 10;
-    
-    // 1. IMPORTER (hauteur 50px)
-    ctx->hImportBtn = CreateWindowA("Button", 
-        "IMPORTER\nle fichier à chiffrer/déchiffrer", 
-        WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_MULTILINE | BS_CENTER, 
-        rightPanelX, btnY, buttonWidth, 50, 
+    int rightPanelX = 520;
+    int buttonWidth = 270;
+    int btnY = y + 20;           // DÃ©part un peu plus bas pour centrage global
+    int normalSpacer = 10;       // Espace actuel entre boutons Ã  l'intÃ©rieur d'un groupe
+    int bigSpacer = 40;          // Espace quadruplÃ© entre les groupes (10 Ã— 4)
+
+    // GROUPE 1 : IMPORTER seul
+    ctx->hImportBtn = CreateWindowA("Button",
+        "IMPORTER\nle fichier Ã  chiffrer/dÃ©chiffrer",
+        WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_MULTILINE | BS_CENTER,
+        rightPanelX, btnY, buttonWidth, 50,
         hwnd, (HMENU)ID_IMPORT_BTN, hInstance, NULL);
-    btnY += 50 + spacer;
-    
-    // 2. CHIFFRER (hauteur 40px)
-    ctx->hEncryptBtn = CreateWindowA("Button", 
-        "CHIFFRER\nle fichier importé", 
-        WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_MULTILINE | BS_CENTER, 
-        rightPanelX, btnY, buttonWidth, 40, 
+    btnY += 50 + bigSpacer;  // ? espace doublÃ© aprÃ¨s le groupe 1
+
+    // GROUPE 2 : CHIFFRER + SAUVEGARDER
+    ctx->hEncryptBtn = CreateWindowA("Button",
+        "CHIFFRER\nle fichier importÃ©",
+        WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_MULTILINE | BS_CENTER,
+        rightPanelX, btnY, buttonWidth, 40,
         hwnd, (HMENU)ID_ENCRYPT_BTN, hInstance, NULL);
-    btnY += 40 + spacer;
-    
-    // 3. SAUVEGARDER (hauteur 40px)
-    ctx->hSaveBtn = CreateWindowA("Button", 
-        "SAUVEGARDER\nle fichier chiffré", 
-        WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_MULTILINE | BS_CENTER, 
-        rightPanelX, btnY, buttonWidth, 40, 
+    btnY += 40 + normalSpacer;
+
+    ctx->hSaveBtn = CreateWindowA("Button",
+        "SAUVEGARDER\nle fichier chiffrÃ©",
+        WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_MULTILINE | BS_CENTER,
+        rightPanelX, btnY, buttonWidth, 40,
         hwnd, (HMENU)ID_SAVE_BTN, hInstance, NULL);
-    btnY += 40 + spacer;
-    
-    // 4. DÉCHIFFRER (hauteur 40px)
-    ctx->hDecryptBtn = CreateWindowA("Button", 
-        "DÉCHIFFRER\nle fichier importé", 
-        WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_MULTILINE | BS_CENTER, 
-        rightPanelX, btnY, buttonWidth, 40, 
+    btnY += 40 + bigSpacer;  // ? espace doublÃ© aprÃ¨s le groupe 2
+
+    // GROUPE 3 : DÃ‰CHIFFRER + EXPORTER texte + EXPORTER image
+    ctx->hDecryptBtn = CreateWindowA("Button",
+        "DÃ‰CHIFFRER\nle fichier importÃ©",
+        WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_MULTILINE | BS_CENTER,
+        rightPanelX, btnY, buttonWidth, 40,
         hwnd, (HMENU)ID_DECRYPT_BTN, hInstance, NULL);
-    btnY += 40 + spacer;
-    
-    // 5. EXPORTER TEXTE (hauteur 40px)
-    ctx->hExportTextBtn = CreateWindowA("Button", 
-        "EXPORTER\nle texte déchiffré", 
-        WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_MULTILINE | BS_CENTER, 
-        rightPanelX, btnY, buttonWidth, 40, 
+    btnY += 40 + normalSpacer;
+
+    ctx->hExportTextBtn = CreateWindowA("Button",
+        "EXPORTER\nle texte dÃ©chiffrÃ©",
+        WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_MULTILINE | BS_CENTER,
+        rightPanelX, btnY, buttonWidth, 40,
         hwnd, (HMENU)ID_EXPORT_TEXT_BTN, hInstance, NULL);
-    btnY += 40 + spacer;
-    
-    // 6. EXPORTER IMAGE (hauteur 40px)
-    ctx->hExportImageBtn = CreateWindowA("Button", 
-        "EXPORTER\nl'image déchiffrée", 
-        WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_MULTILINE | BS_CENTER, 
-        rightPanelX, btnY, buttonWidth, 40, 
+    btnY += 40 + normalSpacer;
+
+    ctx->hExportImageBtn = CreateWindowA("Button",
+        "EXPORTER\nl'image dÃ©chiffrÃ©e",
+        WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_MULTILINE | BS_CENTER,
+        rightPanelX, btnY, buttonWidth, 40,
         hwnd, (HMENU)ID_EXPORT_IMAGE_BTN, hInstance, NULL);
-    btnY += 40 + spacer;
-    
-    // 7. EFFACER (hauteur 40px)
-    ctx->hClearBtn = CreateWindowA("Button", "EFFACER", 
-        WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_CENTER, 
-        rightPanelX, btnY, buttonWidth, 40, 
+    btnY += 40 + bigSpacer;  // ? espace doublÃ© aprÃ¨s le groupe 3
+
+    // GROUPE 4 : EFFACER seul (en bas)
+    ctx->hClearBtn = CreateWindowA("Button", "EFFACER",
+        WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_CENTER,
+        rightPanelX, btnY, buttonWidth, 40,
         hwnd, (HMENU)ID_CLEAR_BTN, hInstance, NULL);
     
     // ========================================
@@ -199,28 +197,29 @@ void create_ui_controls(HWND hwnd, HINSTANCE hInstance, AppContext* ctx) {
     // ========================================
     int helpY = progressY + 35;
     
-    // Bouton de toggle (en-tête) - Panneau masqué par défaut
+    // Bouton de toggle (en-tÃªte) - Panneau masquÃ© par dÃ©faut
     CreateWindowA("Button", 
         "Prise en main rapide                                                                                                 [Afficher]",
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 
         10, helpY, 780, 30, 
         hwnd, (HMENU)ID_HELP_TOGGLE_BTN, hInstance, NULL);
     
-    // Contenu du panneau (initialement masqué)
+    // Contenu du panneau (initialement masquÃ©)
     ctx->hHelpPanel = CreateWindowA("Static", 
-        "Etape 1 - Créez un mot de passe FORT (16+ caractères recommandés)\r\n"
+        "Etape 1 - CrÃ©ez un mot de passe FORT (16+ caractÃ¨res recommandÃ©s)\r\n"
         "   > Utilisez KeePass ou un gestionnaire de mot de passe\r\n"
-        "   > Ne transmettez JAMAIS le mot de passe et le(s) fichier(s) crypté(s) ensemble !\r\n\r\n"
+        "   > Ne transmettez JAMAIS le mot de passe et le(s) fichier(s) cryptÃ©(s) ensemble !\r\n\r\n"
         "Etape 2 - Pour chiffrer un texte ou une image : IMPORTER > CHIFFRER > SAUVEGARDER\r\n\r\n"
-        "Etape 3 - Pour déchiffrer un fichier crypté : IMPORTER > DÉCHIFFRER > EXPORTER\r\n\r\n"
-        "IMPORTANT - Fichiers V31-V36 : Utilisez Cryptage_V36.1.exe pour déchiffrer",
-        WS_CHILD | SS_LEFT,  // MASQUÉ par défaut (pas de WS_VISIBLE)
-        10, helpY + 35, 780, 140, 
+        "Etape 3 - Pour dÃ©chiffrer un fichier cryptÃ© : IMPORTER > DÃ‰CHIFFRER > EXPORTER\r\n\r\n"
+        "IMPORTANT - Fichiers V31-V36 : Utilisez Cryptage_V36.1.exe pour dÃ©chiffrer\r\n"
+        "   > https://github.com/BernardBourbaki/Cryptage/releases/tag/v36.1",
+        WS_CHILD | SS_LEFT,  // MASQUÃ‰ par dÃ©faut (pas de WS_VISIBLE)
+        10, helpY + 35, 780, 160, 
         hwnd, NULL, hInstance, NULL);
     
     ctx->help_expanded = FALSE;
     
-    // Initialiser l'état
+    // Initialiser l'Ã©tat
     update_memory_default(ctx);
     RESET_SHARED_STATE(&ctx->state);
     update_buttons(ctx);
@@ -231,7 +230,7 @@ void create_ui_controls(HWND hwnd, HINSTANCE hInstance, AppContext* ctx) {
  * ======================================== */
 
 /**
- * Met à jour l'état des boutons selon la logique
+ * Met Ã  jour l'Ã©tat des boutons selon la logique
  */
 void update_buttons(AppContext* ctx) {
     // IMPORTER et EFFACER : toujours actifs
@@ -239,7 +238,7 @@ void update_buttons(AppContext* ctx) {
     SET_BUTTON_STATE(ctx->hClearBtn, TRUE);
     
     if (!ctx->state.file_imported) {
-        // État initial : aucun fichier
+        // Ã‰tat initial : aucun fichier
         SET_BUTTON_STATE(ctx->hEncryptBtn, FALSE);
         SET_BUTTON_STATE(ctx->hSaveBtn, FALSE);
         SET_BUTTON_STATE(ctx->hDecryptBtn, FALSE);
@@ -247,13 +246,13 @@ void update_buttons(AppContext* ctx) {
         SET_BUTTON_STATE(ctx->hExportImageBtn, FALSE);
         
     } else if (ctx->state.file_type == FILE_TYPE_CRYPT) {
-        // Fichier .crypt importé (V370 uniquement)
+        // Fichier .crypt importÃ© (V370 uniquement)
         SET_BUTTON_STATE(ctx->hEncryptBtn, FALSE);
         SET_BUTTON_STATE(ctx->hSaveBtn, FALSE);
         SET_BUTTON_STATE(ctx->hDecryptBtn, !ctx->state.decrypted);
         
         if (ctx->state.decrypted) {
-            // Après déchiffrement réussi
+            // AprÃ¨s dÃ©chiffrement rÃ©ussi
             SET_BUTTON_STATE(ctx->hExportTextBtn, 
                 ctx->state.decrypted_type == CONTENT_TYPE_TEXT);
             SET_BUTTON_STATE(ctx->hExportImageBtn, 
@@ -264,7 +263,7 @@ void update_buttons(AppContext* ctx) {
         }
         
     } else {
-        // Fichier normal (texte/image) importé
+        // Fichier normal (texte/image) importÃ©
         SET_BUTTON_STATE(ctx->hEncryptBtn, !ctx->state.encrypted);
         SET_BUTTON_STATE(ctx->hSaveBtn, ctx->state.encrypted);
         SET_BUTTON_STATE(ctx->hDecryptBtn, FALSE);
@@ -278,21 +277,21 @@ void update_buttons(AppContext* ctx) {
  * ======================================== */
 
 /**
- * Handler IMPORTER : charge un fichier et détecte automatiquement son type
+ * Handler IMPORTER : charge un fichier et dÃ©tecte automatiquement son type
  */
 void handle_import(HWND hwnd, AppContext* ctx) {
     if (IS_OPERATION_BUSY(ctx)) {
-        show_error(hwnd, "Une opération est en cours. Veuillez patienter.", 
-                   "Opération en cours");
+        show_error(hwnd, "Une opÃ©ration est en cours. Veuillez patienter.", 
+                   "OpÃ©ration en cours");
         return;
     }
     
     char filename[260] = "";
     const char* filter = 
-        "Tous fichiers supportés\0*.txt;*.jpg;*.jpeg;*.png;*.bmp;*.crypt\0"
+        "Tous fichiers supportÃ©s\0*.txt;*.jpg;*.jpeg;*.png;*.bmp;*.crypt\0"
         "Texte (*.txt)\0*.txt\0"
         "Images (*.jpg;*.jpeg;*.png;*.bmp)\0*.jpg;*.jpeg;*.png;*.bmp\0"
-        "Fichiers cryptés (*.crypt)\0*.crypt\0"
+        "Fichiers cryptÃ©s (*.crypt)\0*.crypt\0"
         "Tous les fichiers (*.*)\0*.*\0";
     
     if (!open_file_dialog(hwnd, filename, sizeof(filename), filter, NULL, FALSE)) {
@@ -313,21 +312,21 @@ void handle_import(HWND hwnd, AppContext* ctx) {
         return;
     }
     
-    // Détecter le type
+    // DÃ©tecter le type
     FileType type = detect_file_type(data, data_len, ctx);
     
     char msg[512];
     
-    // Vérifier si c'est une version antérieure (V31-V36)
+    // VÃ©rifier si c'est une version antÃ©rieure (V31-V36)
     if (data_len >= 4) {
         uint32_t version = read_uint32_le(data);
         
         if (version >= 31 && version < 370) {
-            // Fichier d'une version antérieure détecté
+            // Fichier d'une version antÃ©rieure dÃ©tectÃ©
             snprintf(msg, sizeof(msg), 
-                "?? Fichier crypté v%u détecté (%u Mo) — %zu octets\n\n"
-                "Ce fichier a été chiffré avec une version antérieure.\n\n"
-                "Pour le déchiffrer, utilisez :\n"
+                "?? Fichier cryptÃ© v%u dÃ©tectÃ© (%u Mo) â€” %zu octets\n\n"
+                "Ce fichier a Ã©tÃ© chiffrÃ© avec une version antÃ©rieure.\n\n"
+                "Pour le dÃ©chiffrer, utilisez :\n"
                 "Cryptage_V36.1.exe\n\n"
                 "Disponible sur :\n"
                 "github.com/BernardBourbaki/cryptage-v36.1/releases",
@@ -335,7 +334,7 @@ void handle_import(HWND hwnd, AppContext* ctx) {
                 (version >= 32 && data_len >= 24) ? read_uint32_le(data + 20) / 1024 : 0,
                 data_len);
             
-            MessageBoxA(hwnd, msg, "Version antérieure détectée", 
+            MessageBoxA(hwnd, msg, "Version antÃ©rieure dÃ©tectÃ©e", 
                        MB_OK | MB_ICONWARNING);
             
             // NE PAS importer le fichier
@@ -345,13 +344,13 @@ void handle_import(HWND hwnd, AppContext* ctx) {
     }
     
     if (type == FILE_TYPE_NONE) {
-        show_error(hwnd, "Format de fichier non reconnu ou non supporté", 
+        show_error(hwnd, "Format de fichier non reconnu ou non supportÃ©", 
                    "Type inconnu");
         secure_free(data);
         return;
     }
     
-    // Stocker les données
+    // Stocker les donnÃ©es
     ctx->state.loaded_data = data;
     ctx->state.loaded_len = data_len;
     ctx->state.file_imported = TRUE;
@@ -361,10 +360,10 @@ void handle_import(HWND hwnd, AppContext* ctx) {
     ctx->state.decrypted = FALSE;
     ctx->state.decrypted_type = CONTENT_TYPE_NONE;
     
-    // Afficher dans le champ Entrée
+    // Afficher dans le champ EntrÃ©e
     if (type == FILE_TYPE_TEXT) {
         secure_set_edit_text(ctx->hInputEdit, (char*)data, data_len);
-        show_success(hwnd, "Fichier texte importé avec succès", "Import");
+        show_success(hwnd, "Fichier texte importÃ© avec succÃ¨s", "Import");
         
     } else {
         // Binaire -> hex
@@ -377,13 +376,13 @@ void handle_import(HWND hwnd, AppContext* ctx) {
         if (type == FILE_TYPE_CRYPT) {
             uint32_t version = read_uint32_le(data);
             snprintf(msg, sizeof(msg), 
-                "Fichier crypté importé (v%u — %u Mo)\n%zu octets", 
+                "Fichier cryptÃ© importÃ© (v%u â€” %u Mo)\n%zu octets", 
                 version, ctx->state.mem_kib / 1024, data_len);
             show_success(hwnd, msg, "Import");
             
         } else if (type == FILE_TYPE_IMAGE) {
             snprintf(msg, sizeof(msg), 
-                "Image %s importée\n%zu octets", 
+                "Image %s importÃ©e\n%zu octets", 
                 ctx->state.original_extension, data_len);
             show_success(hwnd, msg, "Import");
         }
@@ -398,14 +397,14 @@ void handle_import(HWND hwnd, AppContext* ctx) {
  */
 void handle_encrypt(HWND hwnd, AppContext* ctx) {
     if (IS_OPERATION_BUSY(ctx)) {
-        show_error(hwnd, "Une opération est en cours. Veuillez patienter.", 
-                   "Opération en cours");
+        show_error(hwnd, "Une opÃ©ration est en cours. Veuillez patienter.", 
+                   "OpÃ©ration en cours");
         return;
     }
     
     reset_decrypt_state(ctx);
     
-    // Récupérer le mot de passe
+    // RÃ©cupÃ©rer le mot de passe
     char* password = secure_get_edit_text(ctx->hKeyEdit, hwnd, 
                                           "Erreur Chiffrement", MAX_PASSWORD_LEN);
     if (!password) return;
@@ -413,7 +412,7 @@ void handle_encrypt(HWND hwnd, AppContext* ctx) {
     if (!is_password_strong(password)) {
         show_error(hwnd, 
             "Mot de passe faible :\n"
-            "Doit contenir entre 8 et 64 caractères,\n"
+            "Doit contenir entre 8 et 64 caractÃ¨res,\n"
             "incluant une majuscule, une minuscule,\n"
             "un chiffre et un symbole", 
             "Erreur Chiffrement");
@@ -421,17 +420,17 @@ void handle_encrypt(HWND hwnd, AppContext* ctx) {
         return;
     }
     
-    // Récupérer les données à chiffrer
+    // RÃ©cupÃ©rer les donnÃ©es Ã  chiffrer
     unsigned char* text = ctx->state.loaded_data;
     size_t text_len = ctx->state.loaded_len;
     
     if (!text || text_len == 0) {
-        show_error(hwnd, "Aucune donnée à chiffrer", "Erreur Chiffrement");
+        show_error(hwnd, "Aucune donnÃ©e Ã  chiffrer", "Erreur Chiffrement");
         secure_clean_and_free(password, strlen(password));
         return;
     }
     
-    // Créer une copie des données pour le thread
+    // CrÃ©er une copie des donnÃ©es pour le thread
     unsigned char* text_copy = secure_malloc(hwnd, text_len, TRUE);
     if (!text_copy) {
         secure_clean_and_free(password, strlen(password));
@@ -439,13 +438,13 @@ void handle_encrypt(HWND hwnd, AppContext* ctx) {
     }
     memcpy(text_copy, text, text_len);
     
-    // Obtenir le paramètre mémoire (calculé automatiquement)
+    // Obtenir le paramÃ¨tre mÃ©moire (calculÃ© automatiquement)
     unsigned int mem_kib = get_memory_param(ctx);
     
-    // Créer l'opération
+    // CrÃ©er l'opÃ©ration
     CryptoOperation* op = (CryptoOperation*)malloc(sizeof(CryptoOperation));
     if (!op) {
-        show_error(hwnd, "Échec allocation mémoire", "Erreur");
+        show_error(hwnd, "Ã‰chec allocation mÃ©moire", "Erreur");
         secure_free(text_copy);
         secure_clean_and_free(password, strlen(password));
         return;
@@ -465,7 +464,7 @@ void handle_encrypt(HWND hwnd, AppContext* ctx) {
     
     op->hThread = CreateThread(NULL, 0, encrypt_thread, op, 0, NULL);
     if (!op->hThread) {
-        show_error(hwnd, "Échec création thread", "Erreur");
+        show_error(hwnd, "Ã‰chec crÃ©ation thread", "Erreur");
         cleanup_crypto_operation(op);
         ctx->state.operation_in_progress = FALSE;
         return;
@@ -499,8 +498,8 @@ DWORD WINAPI encrypt_thread(LPVOID lpParam) {
  */
 void handle_save(HWND hwnd, AppContext* ctx) {
     if (IS_OPERATION_BUSY(ctx)) {
-        show_error(hwnd, "Une opération est en cours. Veuillez patienter.", 
-                   "Opération en cours");
+        show_error(hwnd, "Une opÃ©ration est en cours. Veuillez patienter.", 
+                   "OpÃ©ration en cours");
         return;
     }
     
@@ -511,21 +510,21 @@ void handle_save(HWND hwnd, AppContext* ctx) {
     unsigned char* bin_data = NULL;
     size_t bin_len;
     if (hex_to_bin(hex, &bin_data, &bin_len) != 0) {
-        show_error(hwnd, "Données hexadécimales invalides", "Erreur");
+        show_error(hwnd, "DonnÃ©es hexadÃ©cimales invalides", "Erreur");
         secure_free(hex);
         return;
     }
     secure_free(hex);
     
     if (bin_len == 0) {
-        show_error(hwnd, "Aucune donnée à sauvegarder", "Erreur");
+        show_error(hwnd, "Aucune donnÃ©e Ã  sauvegarder", "Erreur");
         secure_free(bin_data);
         return;
     }
     
     char filename[260] = "encrypted.crypt";
     if (open_file_dialog(hwnd, filename, sizeof(filename), 
-        "Fichiers cryptés (*.crypt)\0*.crypt\0Tous les fichiers (*.*)\0*.*\0", 
+        "Fichiers cryptÃ©s (*.crypt)\0*.crypt\0Tous les fichiers (*.*)\0*.*\0", 
         "crypt", TRUE)) {
         
         if (save_binary_file_secure(filename, bin_data, bin_len, hwnd)) {
@@ -540,12 +539,12 @@ void handle_save(HWND hwnd, AppContext* ctx) {
 }
 
 /**
- * Handler DÉCHIFFRER
+ * Handler DÃ‰CHIFFRER
  */
 void handle_decrypt(HWND hwnd, AppContext* ctx) {
     if (IS_OPERATION_BUSY(ctx)) {
-        show_error(hwnd, "Une opération est en cours. Veuillez patienter.", 
-                   "Opération en cours");
+        show_error(hwnd, "Une opÃ©ration est en cours. Veuillez patienter.", 
+                   "OpÃ©ration en cours");
         return;
     }
     
@@ -557,23 +556,23 @@ void handle_decrypt(HWND hwnd, AppContext* ctx) {
     size_t text_len = ctx->state.loaded_len;
     
     if (!text || text_len == 0) {
-        show_error(hwnd, "Aucune donnée à déchiffrer", "Erreur Déchiffrement");
+        show_error(hwnd, "Aucune donnÃ©e Ã  dÃ©chiffrer", "Erreur DÃ©chiffrement");
         ctx->state.decrypt_attempt_failed = TRUE;
         return;
     }
     
-    // Récupérer le mot de passe
+    // RÃ©cupÃ©rer le mot de passe
     char* password = secure_get_edit_text(ctx->hKeyEdit, hwnd, 
-                                          "Erreur Déchiffrement", MAX_PASSWORD_LEN);
+                                          "Erreur DÃ©chiffrement", MAX_PASSWORD_LEN);
     if (!password) {
         ctx->state.decrypt_attempt_failed = TRUE;
         return;
     }
     
-    // Le paramètre mémoire est déjà extrait dans detect_file_type()
+    // Le paramÃ¨tre mÃ©moire est dÃ©jÃ  extrait dans detect_file_type()
     unsigned int mem_kib = ctx->state.mem_kib;
     
-    // Créer une copie des données
+    // CrÃ©er une copie des donnÃ©es
     unsigned char* text_copy = secure_malloc(hwnd, text_len, TRUE);
     if (!text_copy) {
         secure_clean_and_free(password, strlen(password));
@@ -582,10 +581,10 @@ void handle_decrypt(HWND hwnd, AppContext* ctx) {
     }
     memcpy(text_copy, text, text_len);
     
-    // Créer l'opération
+    // CrÃ©er l'opÃ©ration
     CryptoOperation* op = (CryptoOperation*)malloc(sizeof(CryptoOperation));
     if (!op) {
-        show_error(hwnd, "Échec allocation mémoire", "Erreur");
+        show_error(hwnd, "Ã‰chec allocation mÃ©moire", "Erreur");
         secure_clean_and_free(password, strlen(password));
         secure_free(text_copy);
         ctx->state.decrypt_attempt_failed = TRUE;
@@ -606,7 +605,7 @@ void handle_decrypt(HWND hwnd, AppContext* ctx) {
     
     op->hThread = CreateThread(NULL, 0, decrypt_thread, op, 0, NULL);
     if (!op->hThread) {
-        show_error(hwnd, "Échec création thread", "Erreur");
+        show_error(hwnd, "Ã‰chec crÃ©ation thread", "Erreur");
         cleanup_crypto_operation(op);
         ctx->state.operation_in_progress = FALSE;
         ctx->state.decrypt_attempt_failed = TRUE;
@@ -617,7 +616,7 @@ void handle_decrypt(HWND hwnd, AppContext* ctx) {
 }
 
 /**
- * Thread de déchiffrement
+ * Thread de dÃ©chiffrement
  */
 DWORD WINAPI decrypt_thread(LPVOID lpParam) {
     CryptoOperation* op = (CryptoOperation*)lpParam;
@@ -643,8 +642,8 @@ DWORD WINAPI decrypt_thread(LPVOID lpParam) {
  */
 void handle_export_text(HWND hwnd, AppContext* ctx) {
     if (IS_OPERATION_BUSY(ctx)) {
-        show_error(hwnd, "Une opération est en cours. Veuillez patienter.", 
-                   "Opération en cours");
+        show_error(hwnd, "Une opÃ©ration est en cours. Veuillez patienter.", 
+                   "OpÃ©ration en cours");
         return;
     }
     
@@ -665,14 +664,14 @@ void handle_export_text(HWND hwnd, AppContext* ctx) {
  */
 void handle_export_image(HWND hwnd, AppContext* ctx) {
     if (IS_OPERATION_BUSY(ctx)) {
-        show_error(hwnd, "Une opération est en cours. Veuillez patienter.", 
-                   "Opération en cours");
+        show_error(hwnd, "Une opÃ©ration est en cours. Veuillez patienter.", 
+                   "OpÃ©ration en cours");
         return;
     }
     
     int len = GetWindowTextLengthA(ctx->hOutputEdit);
 if (len == 0) {
-show_error(hwnd, "Aucune donnée déchiffrée à exporter.", "Erreur");
+show_error(hwnd, "Aucune donnÃ©e dÃ©chiffrÃ©e Ã  exporter.", "Erreur");
 return;
 }
 char* hex = secure_get_edit_text(ctx->hOutputEdit, hwnd, 
@@ -682,19 +681,19 @@ if (!hex) return;
 unsigned char* data = NULL;
 size_t data_len;
 if (hex_to_bin(hex, &data, &data_len) != 0) {
-    show_error(hwnd, "Conversion hex ? binaire échouée", "Erreur");
+    show_error(hwnd, "Conversion hex ? binaire Ã©chouÃ©e", "Erreur");
     secure_free(hex);
     return;
 }
 secure_free(hex);
 
 if (data_len == 0) {
-    show_error(hwnd, "Aucune donnée image valide", "Erreur");
+    show_error(hwnd, "Aucune donnÃ©e image valide", "Erreur");
     secure_free(data);
     return;
 }
 
-// Détecter le format
+// DÃ©tecter le format
 const char* ext = NULL;
 const char* filter = NULL;
 
@@ -756,11 +755,11 @@ void toggle_help_panel(AppContext* ctx) {
 }
 
 /* ========================================
- * GESTION DE LA COMPLÉTION DES OPÉRATIONS
+ * GESTION DE LA COMPLÃ‰TION DES OPÃ‰RATIONS
  * ======================================== */
 
 /**
- * Gère la fin d'une opération crypto (chiffrement/déchiffrement)
+ * GÃ¨re la fin d'une opÃ©ration crypto (chiffrement/dÃ©chiffrement)
  */
 void handle_operation_complete(HWND hwnd, AppContext* ctx, 
                                WPARAM wParam, LPARAM lParam) {
@@ -769,7 +768,7 @@ void handle_operation_complete(HWND hwnd, AppContext* ctx,
     update_progress_bar(hwnd, ctx, 100);
     
     if (op->is_encrypt) {
-        // Chiffrement terminé
+        // Chiffrement terminÃ©
         if (wParam == 0 && op->result) {
             char* hex = bin_to_hex(op->result, op->result_len);
             if (hex) {
@@ -777,15 +776,15 @@ void handle_operation_complete(HWND hwnd, AppContext* ctx,
                 secure_free(hex);
             }
             ctx->state.encrypted = TRUE;
-            show_success(hwnd, "Chiffrement réussi !", "Succès");
+            show_success(hwnd, "Chiffrement rÃ©ussi !", "SuccÃ¨s");
             reset_decrypt_state(ctx);
         } else {
-            show_error(hwnd, "Échec du chiffrement", "Erreur");
+            show_error(hwnd, "Ã‰chec du chiffrement", "Erreur");
         }
     } else {
-        // Déchiffrement terminé
+        // DÃ©chiffrement terminÃ©
         if (wParam == 0 && op->result) {
-            // Déterminer le type de contenu
+            // DÃ©terminer le type de contenu
             BOOL is_text = TRUE;
             size_t check_len = (op->result_len < 1024) ? op->result_len : 1024;
             
@@ -812,16 +811,16 @@ void handle_operation_complete(HWND hwnd, AppContext* ctx,
             }
             
             ctx->state.decrypted = TRUE;
-            show_success(hwnd, "Déchiffrement réussi !", "Succès");
+            show_success(hwnd, "DÃ©chiffrement rÃ©ussi !", "SuccÃ¨s");
             reset_decrypt_state(ctx);
             
         } else if (wParam == 1) {
             show_error(hwnd, 
-                "Mot de passe incorrect ou données corrompues", 
-                "Échec Déchiffrement");
+                "Mot de passe incorrect ou donnÃ©es corrompues", 
+                "Ã‰chec DÃ©chiffrement");
             ctx->state.decrypt_attempt_failed = TRUE;
         } else {
-            show_error(hwnd, "Échec du déchiffrement", "Erreur");
+            show_error(hwnd, "Ã‰chec du dÃ©chiffrement", "Erreur");
             ctx->state.decrypt_attempt_failed = TRUE;
         }
     }
@@ -831,11 +830,11 @@ void handle_operation_complete(HWND hwnd, AppContext* ctx,
 }
 
 /* ========================================
- * PROCÉDURE DE FENÊTRE
+ * PROCÃ‰DURE DE FENÃŠTRE
  * ======================================== */
 
 /**
- * Procédure de fenêtre principale
+ * ProcÃ©dure de fenÃªtre principale
  */
 LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     AppContext* ctx = (msg == WM_CREATE) ? 
@@ -898,7 +897,7 @@ LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
                 DrawTextA(p->hDC, txt, -1, &p->rcItem, 
                          DT_CENTER | DT_VCENTER | DT_WORDBREAK);
                 
-                // Griser fortement les boutons désactivés
+                // Griser fortement les boutons dÃ©sactivÃ©s
                 if (!IsWindowEnabled(p->hwndItem)) {
                     HBRUSH hGrayBrush = CreateSolidBrush(RGB(200, 200, 200));
                     FillRect(p->hDC, &p->rcItem, hGrayBrush);
@@ -954,7 +953,7 @@ LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
         case WM_CLOSE:
             if (IS_OPERATION_BUSY(ctx) && 
                 MessageBoxA(hwnd, 
-                    "Une opération est en cours.\n"
+                    "Une opÃ©ration est en cours.\n"
                     "Fermer interrompra le traitement. Continuer ?", 
                     "Confirmation", 
                     MB_YESNO | MB_ICONQUESTION) == IDNO) {
