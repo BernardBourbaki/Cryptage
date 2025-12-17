@@ -1,6 +1,6 @@
 /**
  * Cryptage_UI.c
- * Interface utilisateur unique - Version 37
+ * Interface utilisateur unique - Version 371
  * (c) Bernard DÉMARET - 2025
  */
 
