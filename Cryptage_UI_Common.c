@@ -1,7 +1,7 @@
 /**
  * Cryptage_UI_Common.c
  * Fonctions UI communes - Version 372
- * (c) Bernard DÉMARET - 2025
+ * (c) Bernard DÉMARET - 2026
  */
 
 #include "Cryptage.h"
