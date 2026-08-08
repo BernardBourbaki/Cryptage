@@ -1,7 +1,7 @@
 /**
  * Cryptage_State.h
- * Structures d'état - Version 371
- * (c) Bernard DÉMARET - 2025
+ * Structures d'état - Version 372
+ * (c) Bernard DÉMARET - 2026
  */
 
 #ifndef CRYPTAGE_STATE_H
