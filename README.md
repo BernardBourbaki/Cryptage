@@ -112,8 +112,8 @@ Mémoire Argon2id (4) : en KiB
 
 [SALT - 32 octets]
 [NONCE - 12 octets]
-[CIPHERTEXT - variable]
 [TAG - 16 octets]
+[CIPHERTEXT - variable]
 
 ## 📊 Nouveautés V37.2 (9 août 2026)
 
