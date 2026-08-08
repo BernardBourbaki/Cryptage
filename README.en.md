@@ -1,4 +1,4 @@
-# Cryptage V37.1
+# Cryptage V37.2
 
 **Secure encryption for text files and images**
 
@@ -13,7 +13,7 @@
 
 ### Version compatibility
 
-* **V37 / V37.1**: Decrypts **ONLY** .crypt files created with V37+
+* **V37 / V37.1 / V37.2**: Decrypts **ONLY** .crypt files created with V37+
 * **V31-V36**: Use [Cryptage V36.1](https://github.com/BernardBourbaki/Cryptage/releases/tag/v36.1) to decrypt old files
 
 ### Limits
@@ -29,7 +29,7 @@
 
 ### Windows (Executable)
 
-1. Download Cryptage_V37.exe from [Releases](https://github.com/BernardBourbaki/Cryptage/releases/latest)
+1. Download Cryptage_V37.2.exe from [Releases](https://github.com/BernardBourbaki/Cryptage/releases/latest)
 2. Verify SHA256 checksum (see checksums.txt)
 3. Run the executable (no installation required)
 
@@ -41,7 +41,7 @@
 * OpenSSL 3.0+
 
 **Command**:
-gcc -o Cryptage_V37.exe Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
+gcc -o Cryptage_V37.2.exe Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
 
 
 ## 📖 Usage
@@ -77,7 +77,7 @@ Click the button at the bottom of the window to show/hide detailed instructions 
 * Use passwords of at least 16 characters
 * Store passwords in a secure manager
 * Test decryption **before** deleting the original
-* Keep multiple copies of Cryptage_V37.exe
+* Keep multiple copies of Cryptage_V37.2.exe
 
 ❌ **DO NOT**:
 
@@ -101,7 +101,8 @@ The software automatically calculates the optimal memory parameter:
 [AAD - 24 bytes]
 
 Version (4): 370 (decimal)
-Reserved (16): future extensions
+Reserved (12): future extensions (zeros)
+Plaintext length (4)
 Argon2id memory (4): in KiB
 
 [SALT - 32 bytes]
@@ -109,6 +110,18 @@ Argon2id memory (4): in KiB
 [CIPHERTEXT - variable]
 [TAG - 16 bytes]
 
+## 📊 What's new in V37.2 (August 9, 2026)
+
+### Fixes (V37.2)
+
+- 🐛 Fixed a possible out-of-bounds read when decrypting a truncated or corrupted .crypt file
+- 🐛 Fixed a one-byte overflow during memory cleanup after encryption
+- 🐛 Fixed a memory leak on image import (JPG/PNG/BMP)
+- 🐛 Fixed a possible crash when closing the app while an operation is in progress
+- 🐛 Fixed a GDI handle leak when redrawing buttons
+- 🔧 Cleaned up a poorly-defined reserved area in the .crypt file header (no impact on existing files, format unchanged)
+
+See [closed Issues](https://github.com/BernardBourbaki/Cryptage/issues?q=is%3Aissue+is%3Aclosed) for details on each fix.
 
 ## 📊 What's new in V37.1 (December 17, 2025)
 
