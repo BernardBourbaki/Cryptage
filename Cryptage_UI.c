@@ -1,7 +1,7 @@
 /**
  * Cryptage_UI.c
  * Interface utilisateur unique - Version 372
- * (c) Bernard DÉMARET - 2025
+ * (c) Bernard DÉMARET - 2026
  */
 
 #include "Cryptage.h"
@@ -295,6 +295,16 @@ void handle_import(HWND hwnd, AppContext* ctx) {
     }
 
     reset_decrypt_state(ctx);
+
+    // V37.2.1 : réinitialiser l'extension d'origine pour éviter toute
+    // incohérence entre imports successifs (ex: image -> fichier .crypt)
+    if (ctx->state.original_extension) {
+        secure_free(ctx->state.original_extension);
+        ctx->state.original_extension = NULL;
+        ctx->state.original_extension_len = 0;
+    }
+
+    // Charger le fichier
 
     // Charger le fichier
     unsigned char* data = NULL;
