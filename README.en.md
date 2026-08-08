@@ -105,10 +105,10 @@ Reserved (12): future extensions (zeros)
 Plaintext length (4)
 Argon2id memory (4): in KiB
 
-[SALT - 32 bytes]
-[NONCE - 12 bytes]
+[SALT - 32 octets]
+[NONCE - 12 octets]
+[TAG - 16 octets]
 [CIPHERTEXT - variable]
-[TAG - 16 bytes]
 
 ## 📊 What's new in V37.2 (August 9, 2026)
 
