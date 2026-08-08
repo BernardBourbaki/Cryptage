@@ -1,4 +1,4 @@
-# Cryptage V37.2
+# Cryptage V37.2.1
 
 **Secure encryption for text files and images**
 
@@ -29,7 +29,7 @@
 
 ### Windows (Executable)
 
-1. Download Cryptage_V37.2.exe from [Releases](https://github.com/BernardBourbaki/Cryptage/releases/latest)
+1. Download Cryptage_V37.2.1.exe from [Releases](https://github.com/BernardBourbaki/Cryptage/releases/latest)
 2. Verify SHA256 checksum (see checksums.txt)
 3. Run the executable (no installation required)
 
@@ -41,7 +41,7 @@
 * OpenSSL 3.0+
 
 **Command**:
-gcc -o Cryptage_V37.2.exe Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
+gcc -o Cryptage_V37.2.1.exe Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
 
 
 ## 📖 Usage
@@ -77,7 +77,7 @@ Click the button at the bottom of the window to show/hide detailed instructions 
 * Use passwords of at least 16 characters
 * Store passwords in a secure manager
 * Test decryption **before** deleting the original
-* Keep multiple copies of Cryptage_V37.2.exe
+* Keep multiple copies of Cryptage_V37.2.1.exe
 
 ❌ **DO NOT**:
 
@@ -109,6 +109,12 @@ Argon2id memory (4): in KiB
 [NONCE - 12 octets]
 [TAG - 16 octets]
 [CIPHERTEXT - variable]
+
+## 📊 What's new in V37.2.1 (August 9, 2026)
+
+### Fixes (V37.2.1)
+
+- 🐛 Clean reset of the original extension between successive imports (prevents a JPG/PNG/BMP extension from sticking when importing a .crypt file)
 
 ## 📊 What's new in V37.2 (August 9, 2026)
 
