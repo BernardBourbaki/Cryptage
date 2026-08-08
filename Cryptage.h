@@ -94,6 +94,7 @@
  */
 
 #define CURRENT_VERSION 370 // Version actuelle : 37.2
+#define VERSION CURRENT_VERSION
 
 /* ========================================
  * MESSAGES WINDOWS PERSONNALISÉS
