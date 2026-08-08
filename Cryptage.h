@@ -1,7 +1,7 @@
 /**
  * Cryptage.h
- * Header principal - Version 371 
- * (c) Bernard DÉMARET - 2025
+ * Header principal - Version 372
+ * (c) Bernard DÉMARET - 2026
  */
 
 #ifndef CRYPTAGE_H
@@ -49,9 +49,10 @@
 #define AAD_LEN                 24      // Version(4) + Reserved(16) + MemKiB(4)
 
 // Offsets dans l'AAD
-#define VERSION_OFFSET          0       // Offset de la version
-#define EXTENSION_CODE_OFFSET   4       // Offset du code d'extension (réservé)
-#define MEMORY_OFFSET           20      // Offset du paramètre mémoire
+#define VERSION_OFFSET 0        // Offset de la version
+#define PLAINTEXT_LEN_OFFSET 16 // Offset de la longueur du plaintext
+#define MEMORY_OFFSET 20        // Offset du paramètre mémoire
+// Note : offsets 4-15 sont réservés (zéros), non utilisés à ce jour
 
 // Codes d'extension d'images (dans la zone réservée AAD)
 #define EXT_NONE                0
@@ -72,27 +73,27 @@
 
 /**
  * Format du fichier crypté :
- * 
+ *
  * [AAD - 24 octets]
- *   - Version (4 octets, little-endian) : 370
- *   - Réservé (16 octets) : extensibilité future
- *   - MemKiB (4 octets, little-endian) : paramètre mémoire Argon2id
- * 
+ * - Version (4 octets, little-endian) : 370
+ * - Réservé (12 octets) : extensibilité future, initialisés à zéro
+ * - Longueur du plaintext (4 octets, little-endian)
+ * - MemKiB (4 octets, little-endian) : paramètre mémoire Argon2id
+ *
  * [SALT - 32 octets]
- *   - Sel aléatoire pour Argon2id
- * 
+ * - Sel aléatoire pour Argon2id
+ *
  * [NONCE - 12 octets]
- *   - Nonce aléatoire pour AES-GCM
- * 
- * [CIPHERTEXT - longueur variable]
- *   - Données chiffrées
- * 
+ * - Nonce aléatoire pour AES-GCM
+ *
  * [TAG - 16 octets]
- *   - Tag d'authentification AES-GCM
+ * - Tag d'authentification AES-GCM
+ *
+ * [CIPHERTEXT - longueur variable]
+ * - Données chiffrées
  */
 
-#define CURRENT_VERSION         370     // Version actuelle : 37.1
-#define VERSION                 CURRENT_VERSION
+#define CURRENT_VERSION 370 // Version actuelle : 37.2
 
 /* ========================================
  * MESSAGES WINDOWS PERSONNALISÉS
