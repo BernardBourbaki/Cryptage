@@ -1,8 +1,8 @@
-# Cryptage V37.1
+# Cryptage V37.2
 
 **Chiffrement sécurisé de fichiers texte et images**
 
-[![Version](https://img.shields.io/badge/version-37.1-blue.svg)](https://github.com/BernardBourbaki/Cryptage/releases) 
+[![Version](https://img.shields.io/badge/version-37.2-blue.svg)](https://github.com/BernardBourbaki/Cryptage/releases) 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![OpenSSL](https://img.shields.io/badge/OpenSSL-3.0+-red.svg)](https://www.openssl.org/)
 
@@ -18,7 +18,7 @@
 
 ### Compatibilité des versions
 
-* **V37 / V37.1** : Déchiffre **UNIQUEMENT** les fichiers .crypt créés avec V37+
+* **V37 / V37.1 / V37.2** : Déchiffre **UNIQUEMENT** les fichiers .crypt créés avec V37+
 * **V31-V36** : Utilisez [Cryptage V36.1](https://github.com/BernardBourbaki/Cryptage/releases/tag/v36.1) pour déchiffrer les anciens fichiers
 
 ### Limites
@@ -34,7 +34,7 @@
 
 ### Windows (Exécutable)
 
-1. Téléchargez Cryptage_V37.exe depuis [Releases](https://github.com/BernardBourbaki/Cryptage/releases/latest)
+1. Téléchargez Cryptage_V37.2.exe depuis [Releases](https://github.com/BernardBourbaki/Cryptage/releases/latest)
 2. Vérifiez le checksum SHA256 (voir checksums.txt)
 3. Lancez l'exécutable (pas d'installation requise)
 
@@ -46,7 +46,7 @@
 * OpenSSL 3.0+
 
 **Commande** :
-gcc -o Cryptage_V37.exe Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
+gcc -o Cryptage_V37.2.exe Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
 
 
 ## 📖 Utilisation
@@ -82,7 +82,7 @@ Cliquez sur le bouton en bas de la fenêtre pour afficher/masquer les instructio
 * Utilisez des mots de passe de 16 caractères minimum
 * Conservez vos mots de passe dans un gestionnaire sécurisé
 * Testez le déchiffrement **avant** de supprimer l'original
-* Gardez plusieurs copies du logiciel Cryptage_V37.exe
+* Gardez plusieurs copies du logiciel Cryptage_V37.2.exe
 
 ❌ **À NE PAS FAIRE** :
 
@@ -106,7 +106,8 @@ Le logiciel calcule automatiquement le paramètre mémoire optimal :
 [AAD - 24 octets]
 
 Version (4) : 370 (décimal)
-Réservé (16) : extensibilité future
+Réservé (12) : extensibilité future (zéros)
+Longueur du texte en clair (4)
 Mémoire Argon2id (4) : en KiB
 
 [SALT - 32 octets]
@@ -114,6 +115,18 @@ Mémoire Argon2id (4) : en KiB
 [CIPHERTEXT - variable]
 [TAG - 16 octets]
 
+## 📊 Nouveautés V37.2 (9 août 2026)
+
+### Corrections (V37.2)
+
+- 🐛 Correction d'une lecture hors limites possible au déchiffrement d'un fichier .crypt tronqué ou corrompu
+- 🐛 Correction d'un débordement d'un octet lors du nettoyage mémoire après chiffrement
+- 🐛 Correction d'une fuite mémoire à l'import d'images (JPG/PNG/BMP)
+- 🐛 Correction d'un risque de plantage en cas de fermeture de l'application pendant une opération en cours
+- 🐛 Correction d'une fuite de handle GDI lors de l'affichage des boutons
+- 🔧 Nettoyage d'une zone réservée mal définie dans l'en-tête des fichiers .crypt (aucun impact sur les fichiers existants, format inchangé)
+
+Voir les [Issues fermées](https://github.com/BernardBourbaki/Cryptage/issues?q=is%3Aissue+is%3Aclosed) pour le détail de chaque correctif.
 
 ## 📊 Nouveautés V37.1 (17 décembre 2025)
 
