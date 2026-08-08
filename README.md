@@ -1,8 +1,8 @@
-# Cryptage V37.2
+# Cryptage V37.2.1
 
 **Chiffrement sécurisé de fichiers texte et images**
 
-[![Version](https://img.shields.io/badge/version-37.2-blue.svg)](https://github.com/BernardBourbaki/Cryptage/releases) 
+[![Version](https://img.shields.io/badge/version-37.2.1-blue.svg)](https://github.com/BernardBourbaki/Cryptage/releases) 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![OpenSSL](https://img.shields.io/badge/OpenSSL-3.0+-red.svg)](https://www.openssl.org/)
 
@@ -34,7 +34,7 @@
 
 ### Windows (Exécutable)
 
-1. Téléchargez Cryptage_V37.2.exe depuis [Releases](https://github.com/BernardBourbaki/Cryptage/releases/latest)
+1. Téléchargez Cryptage_V37.2.1.exe depuis [Releases](https://github.com/BernardBourbaki/Cryptage/releases/latest)
 2. Vérifiez le checksum SHA256 (voir checksums.txt)
 3. Lancez l'exécutable (pas d'installation requise)
 
@@ -46,7 +46,7 @@
 * OpenSSL 3.0+
 
 **Commande** :
-gcc -o Cryptage_V37.2.exe Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
+gcc -o Cryptage_V37.2.1.exe Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
 
 
 ## 📖 Utilisation
@@ -82,7 +82,7 @@ Cliquez sur le bouton en bas de la fenêtre pour afficher/masquer les instructio
 * Utilisez des mots de passe de 16 caractères minimum
 * Conservez vos mots de passe dans un gestionnaire sécurisé
 * Testez le déchiffrement **avant** de supprimer l'original
-* Gardez plusieurs copies du logiciel Cryptage_V37.2.exe
+* Gardez plusieurs copies du logiciel Cryptage_V37.2.1.exe
 
 ❌ **À NE PAS FAIRE** :
 
@@ -114,6 +114,11 @@ Mémoire Argon2id (4) : en KiB
 [NONCE - 12 octets]
 [TAG - 16 octets]
 [CIPHERTEXT - variable]
+
+## 📊 Nouveautés V37.2.1 (9 août 2026)
+
+### Corrections (V37.2.1)
+- 🐛 Réinitialisation propre de l'extension d'origine entre imports successifs (évite qu'une extension JPG/PNG/BMP persiste lors de l'import d'un fichier .crypt)
 
 ## 📊 Nouveautés V37.2 (9 août 2026)
 
