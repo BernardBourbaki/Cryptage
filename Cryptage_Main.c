@@ -1,6 +1,6 @@
 /**
  * Cryptage_Main.c
- * Point d'entrée principal - Version 371
+ * Point d'entrée principal - Version 372
  * (c) Bernard DÉMARET - 2025
  */
 
@@ -25,26 +25,28 @@ static AppContext g_AppContext = {0};
  */
 BOOL init_portable_openssl(void) {
     static BOOL initialized = FALSE;
+
     if (!initialized) {
         OPENSSL_init_crypto(
-            OPENSSL_INIT_LOAD_CRYPTO_STRINGS | 
-            OPENSSL_INIT_ADD_ALL_CIPHERS | 
-            OPENSSL_INIT_ADD_ALL_DIGESTS, 
+            OPENSSL_INIT_LOAD_CRYPTO_STRINGS |
+            OPENSSL_INIT_ADD_ALL_CIPHERS |
+            OPENSSL_INIT_ADD_ALL_DIGESTS,
             NULL
         );
-        
+
         if (EVP_aes_256_gcm() == NULL) {
-            MessageBoxA(NULL, 
+            MessageBoxA(NULL,
                 "Erreur: Algorithme AES-256-GCM non disponible\n\n"
-                "Vérifiez l'installation d'OpenSSL.", 
-                "Erreur d'initialisation", 
+                "Vérifiez l'installation d'OpenSSL.",
+                "Erreur d'initialisation",
                 MB_ICONERROR
             );
             return FALSE;
         }
-        
+
         initialized = TRUE;
     }
+
     return TRUE;
 }
 
@@ -64,38 +66,38 @@ HWND create_main_window(HINSTANCE hInstance, int nCmdShow) {
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
     wc.lpszClassName = "CryptoMainClass";
-    
+
     if (!RegisterClassExA(&wc)) {
-        MessageBoxA(NULL, 
-            "Échec de l'enregistrement de la classe de fenêtre", 
-            "Erreur", 
+        MessageBoxA(NULL,
+            "Échec de l'enregistrement de la classe de fenêtre",
+            "Erreur",
             MB_ICONERROR
         );
         return NULL;
     }
-    
+
     HWND hwnd = CreateWindowExA(
         0,
         "CryptoMainClass",
-        "Cryptage V37.1 (c) Bernard DÉMARET",
+        "Cryptage V37.2 (c) Bernard DÉMARET",
         WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, CW_USEDEFAULT,
         900, 800,
         NULL, NULL, hInstance, &g_AppContext
     );
-    
+
     if (!hwnd) {
-        MessageBoxA(NULL, 
-            "Échec de la création de la fenêtre principale", 
-            "Erreur", 
+        MessageBoxA(NULL,
+            "Échec de la création de la fenêtre principale",
+            "Erreur",
             MB_ICONERROR
         );
         return NULL;
     }
-    
+
     ShowWindow(hwnd, nCmdShow);
     UpdateWindow(hwnd);
-    
+
     return hwnd;
 }
 
@@ -106,51 +108,49 @@ HWND create_main_window(HINSTANCE hInstance, int nCmdShow) {
 /**
  * Point d'entrée de l'application
  */
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, 
-                   LPSTR lpCmdLine, int nCmdShow) {
-    
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+                    LPSTR lpCmdLine, int nCmdShow) {
     // Initialiser OpenSSL
     if (!init_portable_openssl()) {
         return 1;
     }
-    
+
 #ifdef NDEBUG
     // Protection contre le débogage en mode Release
     if (IsDebuggerPresent()) {
-        MessageBoxA(NULL, 
+        MessageBoxA(NULL,
             "Débogueur détecté.\n\n"
             "L'application ne peut pas s'exécuter en mode debug "
-            "pour des raisons de sécurité.", 
-            "Sécurité", 
+            "pour des raisons de sécurité.",
+            "Sécurité",
             MB_ICONERROR
         );
         return 1;
     }
 #endif
-    
+
     // Initialiser le contexte global
     memset(&g_AppContext, 0, sizeof(AppContext));
     RESET_SHARED_STATE(&g_AppContext.state);
-    
+
     // Initialiser le système de mémoire sécurisée
     secure_mem_init();
-    
+
     // Créer la fenêtre principale
     g_AppContext.hwnd = create_main_window(hInstance, nCmdShow);
-    
     if (!g_AppContext.hwnd) {
         secure_mem_cleanup();
         OPENSSL_cleanup();
         return 1;
     }
-    
+
     // Boucle de messages
     MSG msg;
     while (GetMessageA(&msg, NULL, 0, 0)) {
         TranslateMessage(&msg);
         DispatchMessageA(&msg);
     }
-    
+
     // Nettoyage final
     if (g_AppContext.state.loaded_data) {
         secure_free(g_AppContext.state.loaded_data);
@@ -158,9 +158,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     if (g_AppContext.state.original_extension) {
         secure_free(g_AppContext.state.original_extension);
     }
-    
     secure_mem_cleanup();
     OPENSSL_cleanup();
-    
+
     return (int)msg.wParam;
 }

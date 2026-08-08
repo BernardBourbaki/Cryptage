@@ -1,7 +1,7 @@
 /**
  * Cryptage_Core.c
  * Algorithmes cryptographiques et fonctions de base
- * Version 371
+ * Version 372
  * (c) Bernard DÉMARET - 2025
  */
 
@@ -58,41 +58,49 @@ void* secure_malloc(HWND hwnd, size_t size, BOOL force_lock) {
     if (!g_secureRegistry.initialized) {
         secure_mem_init();
     }
+
     void* ptr = VirtualAlloc(NULL, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
     if (!ptr) {
         if (hwnd) show_error(hwnd, "Échec de l'allocation mémoire sécurisée", "Erreur Mémoire");
         return NULL;
     }
+
     SecureZeroMemory(ptr, size);
+
     SecureMemNode* node = malloc(sizeof(SecureMemNode));
     if (!node) {
         VirtualFree(ptr, 0, MEM_RELEASE);
         if (hwnd) show_error(hwnd, "Échec de l'allocation du nœud de registre mémoire", "Erreur Mémoire");
         return NULL;
     }
+
     node->ptr = ptr;
     node->size = size;
-    
+
     if (force_lock) {
         check_virtuallock_result(ptr, size, hwnd);
     }
-    
+
     EnterCriticalSection(&g_secureRegistry.lock);
     node->next = g_secureRegistry.head;
     g_secureRegistry.head = node;
     LeaveCriticalSection(&g_secureRegistry.lock);
+
     return ptr;
 }
 
 void secure_free(void* ptr) {
     if (!ptr || !g_secureRegistry.initialized) return;
+
     EnterCriticalSection(&g_secureRegistry.lock);
     SecureMemNode* current = g_secureRegistry.head;
     SecureMemNode* prev = NULL;
+
     while (current && current->ptr != ptr) {
         prev = current;
         current = current->next;
     }
+
     if (current) {
         if (prev) {
             prev->next = current->next;
@@ -104,6 +112,7 @@ void secure_free(void* ptr) {
         VirtualFree(current->ptr, 0, MEM_RELEASE);
         free(current);
     }
+
     LeaveCriticalSection(&g_secureRegistry.lock);
 }
 
@@ -118,11 +127,11 @@ BOOL check_virtuallock_result(void* ptr, size_t size, HWND hwnd) {
     BOOL result = VirtualLock(ptr, size);
     if (!result) {
         DWORD error = GetLastError();
-        #ifdef _DEBUG
+#ifdef _DEBUG
         char debug_msg[256];
         snprintf(debug_msg, sizeof(debug_msg), "VirtualLock failed (error %lu) - continuing without lock", error);
         OutputDebugStringA(debug_msg);
-        #endif
+#endif
     }
     return result;
 }
@@ -139,72 +148,72 @@ BOOL check_file_operations(FILE* fp, const char* operation, HWND hwnd) {
 
 char* secure_get_edit_text(HWND hEdit, HWND hwnd, const char* context, size_t max_len) {
     int wide_len = GetWindowTextLengthW(hEdit);
+
     if (wide_len > (int)max_len) {
         show_error(hwnd, "Entrée trop longue : dépasse la limite maximale (10 Mo pour données, 64 caractères pour mot de passe)", context);
         return NULL;
     }
-    
+
     if (wide_len == 0) {
         char* empty = secure_malloc(hwnd, 1, TRUE);
         if (empty) empty[0] = '\0';
         return empty;
     }
-    
+
     wchar_t* wide_text = (wchar_t*)secure_malloc(hwnd, (wide_len + 1) * sizeof(wchar_t), TRUE);
     if (!wide_text) {
         show_error(hwnd, "Échec de l'allocation mémoire sécurisée pour le texte UTF-16", context);
         return NULL;
     }
-    
+
     int chars_copied = GetWindowTextW(hEdit, wide_text, wide_len + 1);
     if (chars_copied != wide_len) {
         show_error(hwnd, "Erreur lors de la récupération du texte", context);
         secure_free(wide_text);
         return NULL;
     }
-    
+
     int utf8_len = WideCharToMultiByte(CP_UTF8, 0, wide_text, wide_len, NULL, 0, NULL, NULL);
     if (utf8_len <= 0) {
         show_error(hwnd, "Erreur de conversion d'encodage UTF-16 vers UTF-8", context);
         secure_free(wide_text);
         return NULL;
     }
-    
+
     if (context && strstr(context, "Chiffrement") && utf8_len > MAX_TEXT_LEN) {
         show_error(hwnd, "Texte trop long après conversion UTF-8 : dépasse la limite de 10 Mo", context);
         secure_free(wide_text);
         return NULL;
     }
-    
+
     char* utf8_text = secure_malloc(hwnd, utf8_len + 1, TRUE);
     if (!utf8_text) {
         show_error(hwnd, "Échec de l'allocation mémoire sécurisée pour le texte UTF-8", context);
         secure_free(wide_text);
         return NULL;
     }
-    
+
     int bytes_written = WideCharToMultiByte(CP_UTF8, 0, wide_text, wide_len, utf8_text, utf8_len, NULL, NULL);
     secure_free(wide_text);
-    
+
     if (bytes_written != utf8_len) {
         show_error(hwnd, "Erreur lors de la conversion UTF-16 vers UTF-8", context);
         secure_free(utf8_text);
         return NULL;
     }
-    
+
     utf8_text[utf8_len] = '\0';
-    
     return utf8_text;
 }
 
 void secure_set_edit_text(HWND hEdit, const char* text, size_t len) {
     if (!text || !hEdit) return;
-    
+
     int wide_len = MultiByteToWideChar(CP_UTF8, 0, text, (int)len, NULL, 0);
     if (wide_len <= 0) {
         wide_len = MultiByteToWideChar(CP_ACP, 0, text, (int)len, NULL, 0);
     }
-    
+
     if (wide_len <= 0) {
         char* display_text = secure_malloc(NULL, len + 1, FALSE);
         if (!display_text) return;
@@ -215,15 +224,15 @@ void secure_set_edit_text(HWND hEdit, const char* text, size_t len) {
         UpdateWindow(hEdit);
         return;
     }
-    
+
     wchar_t* wide_text = (wchar_t*)secure_malloc(NULL, (wide_len + 1) * sizeof(wchar_t), FALSE);
     if (!wide_text) return;
-    
+
     int result = MultiByteToWideChar(CP_UTF8, 0, text, (int)len, wide_text, wide_len);
     if (result <= 0) {
         result = MultiByteToWideChar(CP_ACP, 0, text, (int)len, wide_text, wide_len);
     }
-    
+
     if (result > 0) {
         wide_text[result] = L'\0';
         SetWindowTextW(hEdit, wide_text);
@@ -236,7 +245,7 @@ void secure_set_edit_text(HWND hEdit, const char* text, size_t len) {
             secure_clean_and_free(ansi_text, len + 1);
         }
     }
-    
+
     secure_free(wide_text);
     UpdateWindow(hEdit);
 }
@@ -246,8 +255,10 @@ char* bin_to_hex(const unsigned char* data, size_t len) {
     const size_t chars_per_line = HEX_COLUMNS * 3;
     const size_t num_lines = (len + HEX_COLUMNS - 1) / HEX_COLUMNS;
     const size_t buffer_size = len * 3 + num_lines * 2 + 1;
+
     char* buffer = secure_malloc(NULL, buffer_size, FALSE);
     if (!buffer) return NULL;
+
     size_t pos = 0;
     for (size_t i = 0; i < len; i++) {
         buffer[pos++] = hex[data[i] >> 4];
@@ -258,22 +269,27 @@ char* bin_to_hex(const unsigned char* data, size_t len) {
             buffer[pos++] = '\n';
         }
     }
+
     if (pos > 0 && buffer[pos - 1] == ' ') pos--;
     buffer[pos] = '\0';
+
     return buffer;
 }
 
 int is_valid_hex(const char* hex) {
     const size_t len = strlen(hex);
     if (len == 0) return 0;
+
     for (size_t i = 0; i < len; i++) {
         if (!isxdigit((unsigned char)hex[i]) && !isspace((unsigned char)hex[i])) return 0;
     }
+
     return 1;
 }
 
 int hex_to_bin(const char* input, unsigned char** output, size_t* out_len) {
     if (!input || !output || !out_len) return -1;
+
     size_t hex_digits = 0;
     for (const char* p = input; *p; ++p) {
         if (isxdigit((unsigned char)*p)) {
@@ -284,17 +300,21 @@ int hex_to_bin(const char* input, unsigned char** output, size_t* out_len) {
             return -1;
         }
     }
+
     if (hex_digits == 0) {
         *output = NULL;
         *out_len = 0;
         return 0;
     }
+
     if (hex_digits % 2 != 0) {
         return -1;
     }
+
     size_t bytes = hex_digits / 2;
     unsigned char* buf = secure_malloc(NULL, bytes, FALSE);
     if (!buf) return -1;
+
     size_t idx = 0;
     int high = -1;
     for (const char* p = input; *p; ++p) {
@@ -303,6 +323,7 @@ int hex_to_bin(const char* input, unsigned char** output, size_t* out_len) {
         if (*p >= '0' && *p <= '9') val = *p - '0';
         else if (*p >= 'a' && *p <= 'f') val = *p - 'a' + 10;
         else val = *p - 'A' + 10;
+
         if (high < 0) {
             high = val;
         } else {
@@ -310,10 +331,12 @@ int hex_to_bin(const char* input, unsigned char** output, size_t* out_len) {
             high = -1;
         }
     }
+
     if (idx != bytes) {
         secure_free(buf);
         return -1;
     }
+
     *output = buf;
     *out_len = bytes;
     return 0;
@@ -322,6 +345,7 @@ int hex_to_bin(const char* input, unsigned char** output, size_t* out_len) {
 int is_password_strong(const char* pwd) {
     const size_t len = strlen(pwd);
     if (len < 8 || len > MAX_PASSWORD_LEN) return 0;
+
     int has_upper = 0, has_lower = 0, has_digit = 0, has_symbol = 0;
     for (size_t i = 0; pwd[i]; i++) {
         if (isupper((unsigned char)pwd[i])) has_upper = 1;
@@ -329,6 +353,7 @@ int is_password_strong(const char* pwd) {
         else if (isdigit((unsigned char)pwd[i])) has_digit = 1;
         else if (ispunct((unsigned char)pwd[i])) has_symbol = 1;
     }
+
     return has_upper && has_lower && has_digit && has_symbol;
 }
 
@@ -338,15 +363,15 @@ void secure_clean(void* data, size_t size) {
 
 uint32_t get_extension_code(const char* ext) {
     if (!ext) return EXT_NONE;
-    
+
     char ext_lower[8] = {0};
     size_t ext_len = strlen(ext);
     if (ext_len > 7) return EXT_NONE;
-    
+
     for (size_t i = 0; i < ext_len; i++) {
         ext_lower[i] = tolower((unsigned char)ext[i]);
     }
-    
+
     if (strcmp(ext_lower, "jpg") == 0 || strcmp(ext_lower, "jpeg") == 0) {
         return EXT_JPG;
     } else if (strcmp(ext_lower, "png") == 0) {
@@ -354,7 +379,7 @@ uint32_t get_extension_code(const char* ext) {
     } else if (strcmp(ext_lower, "bmp") == 0) {
         return EXT_BMP;
     }
-    
+
     return EXT_NONE;
 }
 
@@ -370,6 +395,7 @@ const char* get_extension_from_code(uint32_t code) {
 int derive_key_argon2id(const char* password, const unsigned char* salt, unsigned char* enc_key, unsigned int memory_cost_kib) {
     EVP_KDF* kdf = EVP_KDF_fetch(NULL, "ARGON2ID", NULL);
     if (!kdf) return 0;
+
     EVP_KDF_CTX* kctx = EVP_KDF_CTX_new(kdf);
     if (!kctx) {
         EVP_KDF_free(kdf);
@@ -382,7 +408,6 @@ int derive_key_argon2id(const char* password, const unsigned char* salt, unsigne
 
     OSSL_PARAM params[7];
     OSSL_PARAM *p = params;
-
     *p++ = OSSL_PARAM_construct_uint32(OSSL_KDF_PARAM_ITER, &iter);
     *p++ = OSSL_PARAM_construct_uint32(OSSL_KDF_PARAM_ARGON2_MEMCOST, &memcost);
     *p++ = OSSL_PARAM_construct_uint32(OSSL_KDF_PARAM_ARGON2_LANES, &lanes);
@@ -391,13 +416,13 @@ int derive_key_argon2id(const char* password, const unsigned char* salt, unsigne
     *p++ = OSSL_PARAM_construct_end();
 
     int ret = EVP_KDF_derive(kctx, enc_key, DERIVED_KEY_LEN, params);
-
     if (ret <= 0) {
         OPENSSL_cleanse(enc_key, DERIVED_KEY_LEN);
     }
 
     EVP_KDF_CTX_free(kctx);
     EVP_KDF_free(kdf);
+
     return ret > 0;
 }
 
@@ -426,24 +451,24 @@ BOOL is_image_file(const char* filename) {
     if (!filename) return FALSE;
     const char* ext = strrchr(filename, '.');
     if (!ext) return FALSE;
-    
+
     char ext_lower[8] = {0};
     size_t ext_len = strlen(ext);
     if (ext_len > 7) return FALSE;
-    
+
     for (size_t i = 0; i < ext_len; i++) {
         ext_lower[i] = tolower((unsigned char)ext[i]);
     }
-    
-    return (strcmp(ext_lower, ".jpg") == 0 || strcmp(ext_lower, ".jpeg") == 0 || 
+
+    return (strcmp(ext_lower, ".jpg") == 0 || strcmp(ext_lower, ".jpeg") == 0 ||
             strcmp(ext_lower, ".png") == 0 || strcmp(ext_lower, ".bmp") == 0 ||
-            strcmp(ext_lower, ".JPG") == 0 || strcmp(ext_lower, ".JPEG") == 0 || 
+            strcmp(ext_lower, ".JPG") == 0 || strcmp(ext_lower, ".JPEG") == 0 ||
             strcmp(ext_lower, ".PNG") == 0 || strcmp(ext_lower, ".BMP") == 0);
 }
 
 BOOL validate_image_format(const unsigned char* data, size_t data_len, const char* expected_ext) {
     if (!data || data_len < 8) return FALSE;
-    
+
     char ext_lower[8] = {0};
     if (expected_ext) {
         size_t ext_len = strlen(expected_ext);
@@ -451,7 +476,7 @@ BOOL validate_image_format(const unsigned char* data, size_t data_len, const cha
             ext_lower[i] = tolower((unsigned char)expected_ext[i]);
         }
     }
-    
+
     if (strcmp(ext_lower, "jpg") == 0 || strcmp(ext_lower, "jpeg") == 0) {
         return (data[0] == 0xFF && data[1] == 0xD8 && data[2] == 0xFF);
     } else if (strcmp(ext_lower, "png") == 0) {
@@ -460,31 +485,31 @@ BOOL validate_image_format(const unsigned char* data, size_t data_len, const cha
     } else if (strcmp(ext_lower, "bmp") == 0) {
         return (data[0] == 0x42 && data[1] == 0x4D);
     }
-    
+
     return FALSE;
 }
 
 BOOL validate_decrypted_image_data(const unsigned char* data, size_t len, const char* expected_ext) {
     if (!data || len < 8) return FALSE;
-    
+
     if (expected_ext) {
         char ext_lower[8] = {0};
         size_t ext_len = strlen(expected_ext);
         for (size_t i = 0; i < ext_len && i < 7; i++) {
             ext_lower[i] = tolower((unsigned char)expected_ext[i]);
         }
-        
+
         if (strcmp(ext_lower, "jpg") == 0 || strcmp(ext_lower, "jpeg") == 0) {
             return (len >= 3 && data[0] == 0xFF && data[1] == 0xD8 && data[2] == 0xFF);
         } else if (strcmp(ext_lower, "png") == 0) {
-            return (len >= 8 && data[0] == 0x89 && data[1] == 0x50 && data[2] == 0x4E && 
-                   data[3] == 0x47 && data[4] == 0x0D && data[5] == 0x0A && 
-                   data[6] == 0x1A && data[7] == 0x0A);
+            return (len >= 8 && data[0] == 0x89 && data[1] == 0x50 && data[2] == 0x4E &&
+                    data[3] == 0x47 && data[4] == 0x0D && data[5] == 0x0A &&
+                    data[6] == 0x1A && data[7] == 0x0A);
         } else if (strcmp(ext_lower, "bmp") == 0) {
             return (len >= 2 && data[0] == 0x42 && data[1] == 0x4D);
         }
     }
-    
+
     return validate_image_format(data, len, expected_ext);
 }
 
@@ -500,56 +525,44 @@ unsigned char* encrypt_data(HWND hwnd, const unsigned char* plaintext, size_t pl
         show_error(hwnd, "Données trop longues : limite de 10 Mo dépassée. Divisez votre fichier ou utilisez un outil adapté.", "Erreur Chiffrement");
         return NULL;
     }
-    
+
     unsigned char salt[SALT_LEN], nonce[NONCE_LEN];
     unsigned char* enc_key = secure_malloc(hwnd, DERIVED_KEY_LEN, TRUE);
     unsigned char* ciphertext = NULL, *output = NULL;
     EVP_CIPHER_CTX* ctx = NULL;
     int len, total_len = 0;
-    
+
     if (!enc_key) return NULL;
-    
+
     if (!RAND_bytes(salt, SALT_LEN) || !RAND_bytes(nonce, NONCE_LEN)) {
         display_openssl_error(hwnd, "Génération de sel ou nonce");
         secure_clean_and_free(enc_key, DERIVED_KEY_LEN);
         return NULL;
     }
-    
+
     if (!derive_key_argon2id(password, salt, enc_key, memory_cost_kib)) {
         display_openssl_error(hwnd, "Dérivation de la clé");
         secure_clean_and_free(enc_key, DERIVED_KEY_LEN);
         return NULL;
     }
-    
-    uint32_t extension_code = EXT_NONE;
-    if (plaintext_len >= 8) {
-        if (plaintext[0] == 0xFF && plaintext[1] == 0xD8 && plaintext[2] == 0xFF) {
-            extension_code = EXT_JPG;
-        } else if (plaintext[0] == 0x89 && plaintext[1] == 0x50 && plaintext[2] == 0x4E && 
-                  plaintext[3] == 0x47 && plaintext[4] == 0x0D && plaintext[5] == 0x0A && 
-                  plaintext[6] == 0x1A && plaintext[7] == 0x0A) {
-            extension_code = EXT_PNG;
-        } else if (plaintext[0] == 0x42 && plaintext[1] == 0x4D) {
-            extension_code = EXT_BMP;
-        }
-    }
-    
+
+    // V37.2 : ancien code d'extension (offsets 4-15 de l'AAD) retiré - jamais relu par
+    // decrypt_data et il entrait de toute façon en collision avec EXTENSION_CODE_OFFSET.
+    // La restauration du type de fichier au déchiffrement se fait par détection des
+    // en-têtes binaires (validate_decrypted_image_data), pas par ce champ.
     unsigned char aad_data[AAD_LEN];
     write_uint32_le(aad_data, VERSION);
-    write_uint32_le(aad_data + 4, SALT_LEN);
-    write_uint32_le(aad_data + 8, NONCE_LEN);
-    write_uint32_le(aad_data + 12, TAG_LEN);
+    memset(aad_data + 4, 0, 12); // Zone réservée (offsets 4-15) : extensibilité future, non utilisée à ce jour
     write_uint32_le(aad_data + 16, (uint32_t)plaintext_len);
     write_uint32_le(aad_data + 20, memory_cost_kib);
-    write_uint32_le(aad_data + EXTENSION_CODE_OFFSET, extension_code);
-    
+
     ctx = EVP_CIPHER_CTX_new();
     if (!ctx) {
         show_error(hwnd, "Échec de l'allocation du contexte OpenSSL", "Erreur Chiffrement");
         secure_clean_and_free(enc_key, DERIVED_KEY_LEN);
         return NULL;
     }
-    
+
     ciphertext = secure_malloc(hwnd, plaintext_len + EVP_MAX_BLOCK_LENGTH, TRUE);
     if (!ciphertext) {
         secure_clean_and_free(enc_key, DERIVED_KEY_LEN);
@@ -558,6 +571,7 @@ unsigned char* encrypt_data(HWND hwnd, const unsigned char* plaintext, size_t pl
     }
 
     ERR_clear_error();
+
     if (EVP_EncryptInit_ex(ctx, EVP_aes_256_gcm(), NULL, NULL, NULL) != 1 ||
         EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, NONCE_LEN, NULL) != 1 ||
         EVP_EncryptInit_ex(ctx, NULL, NULL, enc_key, nonce) != 1) {
@@ -622,8 +636,10 @@ unsigned char* encrypt_data(HWND hwnd, const unsigned char* plaintext, size_t pl
     secure_clean_and_free(enc_key, DERIVED_KEY_LEN);
     secure_free(ciphertext);
     EVP_CIPHER_CTX_free(ctx);
+
     return output;
 }
+
 int decrypt_data(HWND hwnd, const unsigned char* input, size_t input_len, const char* password, unsigned char** output, size_t* out_len, unsigned int memory_cost_kib) {
     *output = NULL;
     *out_len = 0;
@@ -650,6 +666,15 @@ int decrypt_data(HWND hwnd, const unsigned char* input, size_t input_len, const 
     memory_cost_kib = stored_mem_kib;
 
     uint32_t ciphertext_len = read_uint32_le(input + 16);
+
+    // V37.2 : Validation de cohérence de longueur - empêche une lecture hors limites
+    // (EVP_DecryptUpdate) sur un fichier .crypt tronqué, corrompu ou forgé, où
+    // ciphertext_len annoncé dans l'en-tête ne correspondrait pas aux octets réellement
+    // présents dans le buffer d'entrée.
+    if (input_len != (size_t)AAD_LEN + SALT_LEN + NONCE_LEN + TAG_LEN + (size_t)ciphertext_len) {
+        return 2;
+    }
+
     size_t offset = AAD_LEN;
     const unsigned char* salt = input + offset; offset += SALT_LEN;
     const unsigned char* nonce = input + offset; offset += NONCE_LEN;
@@ -660,8 +685,8 @@ int decrypt_data(HWND hwnd, const unsigned char* input, size_t input_len, const 
     if (!enc_key) return 3;
 
     if (!derive_key_argon2id(password, salt, enc_key, memory_cost_kib)) {
-    secure_clean_and_free(enc_key, DERIVED_KEY_LEN);
-    return 4;
+        secure_clean_and_free(enc_key, DERIVED_KEY_LEN);
+        return 4;
     }
 
     unsigned char aad_data[AAD_LEN];
@@ -671,7 +696,7 @@ int decrypt_data(HWND hwnd, const unsigned char* input, size_t input_len, const 
     if (!ctx) {
         secure_clean_and_free(enc_key, DERIVED_KEY_LEN);
         return 3;
-    }   
+    }
 
     *output = secure_malloc(hwnd, ciphertext_len, TRUE);
     if (!*output) {
@@ -681,7 +706,6 @@ int decrypt_data(HWND hwnd, const unsigned char* input, size_t input_len, const 
     }
 
     int len;
-
     if (EVP_DecryptInit_ex(ctx, EVP_aes_256_gcm(), NULL, NULL, NULL) != 1 ||
         EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, NONCE_LEN, NULL) != 1 ||
         EVP_DecryptInit_ex(ctx, NULL, NULL, enc_key, nonce) != 1) {
@@ -752,9 +776,9 @@ BOOL load_file_secure(const char* filename, unsigned char** data, size_t* data_l
 
     long file_size = ftell(fp);
     if (file_size < 0) {
-    show_error(hwnd, "Erreur lors de la détermination de la taille du fichier", "Erreur Chargement");
-    fclose(fp);
-    return FALSE;
+        show_error(hwnd, "Erreur lors de la détermination de la taille du fichier", "Erreur Chargement");
+        fclose(fp);
+        return FALSE;
     }
 
     if (file_size > MAX_TEXT_LEN) {
@@ -776,7 +800,6 @@ BOOL load_file_secure(const char* filename, unsigned char** data, size_t* data_l
     }
 
     size_t bytes_read = fread(*data, 1, (size_t)file_size, fp);
-
     if (fclose(fp) != 0) {
         show_error(hwnd, "Avertissement : échec de la fermeture propre du fichier", "Avertissement");
     }
@@ -795,5 +818,6 @@ BOOL load_file_secure(const char* filename, unsigned char** data, size_t* data_l
     if (show_success) {
         MessageBoxA(hwnd, "Fichier chargé avec succès", "Succès", MB_ICONINFORMATION);
     }
+
     return TRUE;
 }

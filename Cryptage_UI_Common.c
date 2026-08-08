@@ -1,6 +1,6 @@
 /**
  * Cryptage_UI_Common.c
- * Fonctions UI communes - Version 371
+ * Fonctions UI communes - Version 372
  * (c) Bernard DÉMARET - 2025
  */
 
@@ -33,18 +33,18 @@ void show_success(HWND hwnd, const char* message, const char* title) {
 void display_openssl_error(HWND hwnd, const char* operation) {
     char err_msg[256];
     unsigned long err = ERR_get_error();
-    
+
     if (err) {
         ERR_error_string_n(err, err_msg, sizeof(err_msg));
         char full_msg[512];
-        snprintf(full_msg, sizeof(full_msg), 
-            "Erreur lors de %s :\n\n%s", operation, err_msg);
+        snprintf(full_msg, sizeof(full_msg),
+                 "Erreur lors de %s :\n\n%s", operation, err_msg);
         MessageBoxA(hwnd, full_msg, "Erreur OpenSSL", MB_ICONERROR);
         ERR_clear_error();
     } else {
         char full_msg[512];
-        snprintf(full_msg, sizeof(full_msg), 
-            "Erreur inconnue lors de %s", operation);
+        snprintf(full_msg, sizeof(full_msg),
+                 "Erreur inconnue lors de %s", operation);
         MessageBoxA(hwnd, full_msg, "Erreur OpenSSL", MB_ICONERROR);
     }
 }
@@ -56,8 +56,8 @@ void display_openssl_error(HWND hwnd, const char* operation) {
 /**
  * Ouvre une boîte de dialogue pour sélectionner/sauvegarder un fichier
  */
-BOOL open_file_dialog(HWND hwnd, char* filename, size_t filename_size, 
-                      const char* filter, const char* ext, BOOL save) {
+BOOL open_file_dialog(HWND hwnd, char* filename, size_t filename_size,
+                       const char* filter, const char* ext, BOOL save) {
     OPENFILENAMEA ofn = {0};
     ofn.lStructSize = sizeof(OPENFILENAMEA);
     ofn.hwndOwner = hwnd;
@@ -66,7 +66,7 @@ BOOL open_file_dialog(HWND hwnd, char* filename, size_t filename_size,
     ofn.nMaxFile = (DWORD)filename_size;
     ofn.lpstrDefExt = ext;
     ofn.Flags = OFN_PATHMUSTEXIST | (save ? OFN_OVERWRITEPROMPT : OFN_FILEMUSTEXIST);
-    
+
     return save ? GetSaveFileNameA(&ofn) : GetOpenFileNameA(&ofn);
 }
 
@@ -102,10 +102,10 @@ void reset_progress_bar(AppContext* ctx) {
  */
 void toggle_password_visibility(AppContext* ctx) {
     ctx->pwdVisible = !ctx->pwdVisible;
-    SendMessageA(ctx->hKeyEdit, EM_SETPASSWORDCHAR, 
+    SendMessageA(ctx->hKeyEdit, EM_SETPASSWORDCHAR,
                  ctx->pwdVisible ? 0 : '*', 0);
     InvalidateRect(ctx->hKeyEdit, NULL, TRUE);
-    SetWindowTextA(ctx->hTogglePwdBtn, 
+    SetWindowTextA(ctx->hTogglePwdBtn,
                    ctx->pwdVisible ? "Masquer" : "Afficher");
 }
 
@@ -119,15 +119,15 @@ void toggle_password_visibility(AppContext* ctx) {
  */
 void update_memory_default(AppContext* ctx) {
     MEMORYSTATUSEX mem_status = {sizeof(MEMORYSTATUSEX)};
-    
+
     if (GlobalMemoryStatusEx(&mem_status)) {
         ULONGLONG available_mem_kb = mem_status.ullAvailPhys / 1024;
         unsigned int default_mem_kib = (unsigned int)(available_mem_kb * 0.25);
-        
+
         // Limites : 4 Mo minimum, 1024 Mo maximum
         if (default_mem_kib < 4096) default_mem_kib = 4096;
         if (default_mem_kib > 1048576) default_mem_kib = 1048576;
-        
+
         ctx->state.default_mem_kib = default_mem_kib;
         ctx->state.mem_kib = default_mem_kib;
     } else {
@@ -151,26 +151,26 @@ unsigned int get_memory_param(AppContext* ctx) {
 /**
  * Sauvegarde un fichier binaire
  */
-BOOL save_binary_file_secure(const char* filename, const unsigned char* data, 
+BOOL save_binary_file_secure(const char* filename, const unsigned char* data,
                               size_t data_len, HWND hwnd) {
     FILE* fp = fopen(filename, "wb");
     if (!check_file_operations(fp, "l'ouverture du fichier pour écriture", hwnd)) {
         return FALSE;
     }
-    
+
     if (fwrite(data, 1, data_len, fp) != data_len) {
-        show_error(hwnd, "Échec de l'écriture des données", 
+        show_error(hwnd, "Échec de l'écriture des données",
                    "Erreur Sauvegarde");
         fclose(fp);
         return FALSE;
     }
-    
+
     if (fclose(fp) != 0) {
-        show_error(hwnd, 
-            "Avertissement : échec de la fermeture propre du fichier", 
-            "Avertissement");
+        show_error(hwnd,
+                   "Avertissement : échec de la fermeture propre du fichier",
+                   "Avertissement");
     }
-    
+
     show_success(hwnd, "Fichier sauvegardé avec succès !", "Succès");
     return TRUE;
 }
@@ -181,26 +181,26 @@ BOOL save_binary_file_secure(const char* filename, const unsigned char* data,
 BOOL save_decrypted_text_file_secure(const char* filename, HWND hOutputEdit) {
     int text_len = GetWindowTextLengthA(hOutputEdit);
     if (text_len == 0) {
-        show_error(NULL, "Aucun texte à sauvegarder dans le champ Sortie", 
+        show_error(NULL, "Aucun texte à sauvegarder dans le champ Sortie",
                    "Erreur Sauvegarde");
         return FALSE;
     }
-    
+
     char* text = secure_malloc(NULL, text_len + 1, TRUE);
     if (!text) return FALSE;
-    
+
     GetWindowTextA(hOutputEdit, text, text_len + 1);
-    
+
     FILE* fp = fopen(filename, "w");
     if (!fp) {
         secure_clean_and_free(text, text_len + 1);
         return FALSE;
     }
-    
+
     fprintf(fp, "%s", text);
     fclose(fp);
     secure_clean_and_free(text, text_len + 1);
-    
+
     show_success(NULL, "Texte déchiffré sauvegardé avec succès !", "Succès");
     return TRUE;
 }
@@ -208,27 +208,26 @@ BOOL save_decrypted_text_file_secure(const char* filename, HWND hOutputEdit) {
 /**
  * Sauvegarde une image déchiffrée
  */
-BOOL save_image_file_secure(const char* filename, const unsigned char* data, 
+BOOL save_image_file_secure(const char* filename, const unsigned char* data,
                              size_t data_len, const char* extension, HWND hwnd) {
     FILE* fp = fopen(filename, "wb");
     if (!check_file_operations(fp, "l'ouverture du fichier pour écriture", hwnd)) {
         return FALSE;
     }
-    
+
     if (fwrite(data, 1, data_len, fp) != data_len) {
-        show_error(hwnd, "Échec de l'écriture des données image", 
+        show_error(hwnd, "Échec de l'écriture des données image",
                    "Erreur Sauvegarde Image");
         fclose(fp);
         return FALSE;
     }
-    
+
     fclose(fp);
-    
+
     char success_msg[512];
-    snprintf(success_msg, sizeof(success_msg), 
+    snprintf(success_msg, sizeof(success_msg),
              "Image %s sauvegardée avec succès !", extension);
     show_success(hwnd, success_msg, "Succès");
-    
     return TRUE;
 }
 
@@ -237,29 +236,42 @@ BOOL save_image_file_secure(const char* filename, const unsigned char* data,
  * ======================================== */
 
 /**
+ * Duplique une extension de fichier dans un buffer compatible avec secure_free
+ * (V37.2 : remplace _strdup, qui alloue depuis le tas C standard - un pointeur
+ * que secure_free ne trouve jamais dans son propre registre, puisqu'il n'y a
+ * jamais été inscrit. La recherche échouait silencieusement et la mémoire
+ * fuyait à chaque import d'image, sans jamais être libérée.)
+ */
+static char* dup_extension(const char* ext) {
+    size_t len = strlen(ext) + 1;
+    char* copy = secure_malloc(NULL, len, FALSE);
+    if (copy) memcpy(copy, ext, len);
+    return copy;
+}
+
+/**
  * Détecte le type de fichier à partir des données binaires
  */
-FileType detect_file_type(const unsigned char* data, size_t data_len, 
-                          AppContext* ctx) {
+FileType detect_file_type(const unsigned char* data, size_t data_len,
+                           AppContext* ctx) {
     if (!data || data_len == 0) {
         return FILE_TYPE_NONE;
     }
-    
+
     // Vérifier si c'est un fichier crypté V370 (V37)
     if (data_len >= AAD_LEN + SALT_LEN + NONCE_LEN + TAG_LEN) {
         uint32_t version = read_uint32_le(data);
         uint32_t stored_mem_kib = read_uint32_le(data + 20);
-        
+
         // V37 : Accepter UNIQUEMENT version 370
         if (version == CURRENT_VERSION &&
             stored_mem_kib >= 4096 && stored_mem_kib <= 1048576) {
-            
             // Extraire et stocker le paramètre mémoire
             ctx->state.mem_kib = stored_mem_kib;
             return FILE_TYPE_CRYPT;
         }
     }
-    
+
     // Vérifier les formats d'image
     if (data_len >= 8) {
         // JPEG
@@ -267,49 +279,48 @@ FileType detect_file_type(const unsigned char* data, size_t data_len,
             if (ctx->state.original_extension) {
                 secure_free(ctx->state.original_extension);
             }
-            ctx->state.original_extension = _strdup("jpg");
+            ctx->state.original_extension = dup_extension("jpg");
             ctx->state.original_extension_len = 4;
             return FILE_TYPE_IMAGE;
         }
-        
+
         // PNG
         if (memcmp(data, "\x89PNG\r\n\x1A\n", 8) == 0) {
             if (ctx->state.original_extension) {
                 secure_free(ctx->state.original_extension);
             }
-            ctx->state.original_extension = _strdup("png");
+            ctx->state.original_extension = dup_extension("png");
             ctx->state.original_extension_len = 4;
             return FILE_TYPE_IMAGE;
         }
-        
+
         // BMP
         if (data[0] == 'B' && data[1] == 'M') {
             if (ctx->state.original_extension) {
                 secure_free(ctx->state.original_extension);
             }
-            ctx->state.original_extension = _strdup("bmp");
+            ctx->state.original_extension = dup_extension("bmp");
             ctx->state.original_extension_len = 4;
             return FILE_TYPE_IMAGE;
         }
     }
-    
+
     // Vérifier si c'est du texte
     BOOL is_text = TRUE;
     size_t check_len = (data_len < 1024) ? data_len : 1024;
-    
     for (size_t i = 0; i < check_len; i++) {
-        if (data[i] == 0 || 
-            (data[i] < 32 && data[i] != '\t' && 
+        if (data[i] == 0 ||
+            (data[i] < 32 && data[i] != '\t' &&
              data[i] != '\r' && data[i] != '\n')) {
             is_text = FALSE;
             break;
         }
     }
-    
+
     if (is_text) {
         return FILE_TYPE_TEXT;
     }
-    
+
     return FILE_TYPE_NONE;
 }
 
@@ -329,37 +340,37 @@ void reset_decrypt_state(AppContext* ctx) {
  */
 void handle_clear(AppContext* ctx) {
     if (ctx->state.operation_in_progress) {
-        show_error(NULL, 
-            "Une opération est en cours. Impossible d'effacer maintenant.", 
-            "Opération en cours");
+        show_error(NULL,
+                   "Une opération est en cours. Impossible d'effacer maintenant.",
+                   "Opération en cours");
         return;
     }
-    
+
     // Réinitialiser l'état
     reset_decrypt_state(ctx);
     RESET_SHARED_STATE(&ctx->state);
-    
+
     // Effacer les champs
     SetWindowTextA(ctx->hKeyEdit, "");
     SetWindowTextA(ctx->hInputEdit, "");
     SetWindowTextA(ctx->hOutputEdit, "");
-    
+
     // Libérer les données
     if (ctx->state.loaded_data) {
         secure_free(ctx->state.loaded_data);
         ctx->state.loaded_data = NULL;
         ctx->state.loaded_len = 0;
     }
-    
+
     if (ctx->state.original_extension) {
         secure_free(ctx->state.original_extension);
         ctx->state.original_extension = NULL;
         ctx->state.original_extension_len = 0;
     }
-    
+
     // Réinitialiser la mémoire à la valeur par défaut
     ctx->state.mem_kib = ctx->state.default_mem_kib;
-    
+
     // Réinitialiser la barre de progression
     reset_progress_bar(ctx);
 }
@@ -373,24 +384,27 @@ void handle_clear(AppContext* ctx) {
  */
 void cleanup_crypto_operation(CryptoOperation* op) {
     if (!op) return;
-    
+
     if (op->text) {
-        secure_clean_and_free(op->text, 
-            op->text_len + (op->is_encrypt ? 1 : 0));
+        // V37.2 : retrait du "+1" - op->text est alloué avec exactement
+        // op->text_len octets (voir handle_encrypt/handle_decrypt dans
+        // Cryptage_UI.c), l'ancien code demandait à OPENSSL_cleanse
+        // d'écrire un octet au-delà du buffer alloué.
+        secure_clean_and_free(op->text, op->text_len);
     }
-    
+
     if (op->password) {
         secure_clean_and_free(op->password, strlen(op->password));
     }
-    
+
     if (op->result) {
         secure_clean_and_free(op->result, op->result_len);
     }
-    
+
     if (op->hThread) {
         CloseHandle(op->hThread);
     }
-    
+
     free(op);
 }
 
@@ -408,7 +422,7 @@ void create_fonts(AppContext* ctx) {
         ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
         DEFAULT_QUALITY, FIXED_PITCH | FF_MODERN, "Courier New"
     );
-    
+
     // Police grasse pour les labels
     ctx->hBoldFont = CreateFontA(
         15, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE,
