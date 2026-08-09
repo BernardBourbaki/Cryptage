@@ -49,12 +49,12 @@
 
 1. Si vous voulez une version locale, légère, idéale pour des tests :
    ```bash
-   gcc -finput-charset=UTF-8 -fexec-charset=CP1252 -o Cryptage_V37.2.1.exe Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -lssl -lcrypto -lws2_32 -lcrypt32 -lgdi32 -lcomctl32 -mwindows
+   gcc -finput-charset=UTF-8 -fexec-charset=CP1252 Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V37.2.1.exe -lssl -lcrypto -lws2_32 -lcrypt32 -lgdi32 -lcomctl32 -mwindows
    ```
    
 2. Si vous voulez compiler vous-même la version portable, très robuste et optimisée au maximum, qui est proposée en téléchargement :
    ```bash
-   gcc -static -static-libgcc -Os -s -flto -fno-ident -fno-asynchronous-unwind-tables -ffunction-sections -fdata-sections -finput-charset=UTF-8 -fexec-charset=CP1252 -Wl,--gc-sections -Wl,--strip-all -Wl,--build-id=none -D_FORTIFY_SOURCE=2 -DNDEBUG -o Cryptage_V37.2.1.exe Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -I C:/msys64/mingw64/include -L C:/msys64/mingw64/lib -lssl -lcrypto -lws2_32 -lcrypt32 -lgdi32 -lcomctl32 -mwindows
+   gcc -static -static-libgcc -Os -s -flto -fno-ident -fno-asynchronous-unwind-tables -ffunction-sections -fdata-sections -finput-charset=UTF-8 -fexec-charset=CP1252 -I/c/msys64/mingw64/include -L/c/msys64/mingw64/lib Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V37.2.1.exe -Wl,--gc-sections -Wl,--build-id=none -D_FORTIFY_SOURCE=2 -DNDEBUG -lssl -lcrypto -lwinpthread -lws2_32 -lcrypt32 -lgdi32 -lcomctl32 -mwindows
    ```
 
 ## 📖 Utilisation
