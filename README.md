@@ -4,7 +4,7 @@
 
 [![Version](https://img.shields.io/badge/version-37.2.1-blue.svg)](https://github.com/BernardBourbaki/Cryptage/releases) 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![OpenSSL](https://img.shields.io/badge/OpenSSL-3.0+-red.svg)](https://www.openssl.org/)
+[![OpenSSL](https://img.shields.io/badge/OpenSSL-3.2+-red.svg)](https://www.openssl.org/)
 
 
 ## 🔐 Sécurité
