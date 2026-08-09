@@ -47,7 +47,7 @@
 
 **Commande** :
 
-1. Si vous voulez une version locale, légère, idéale pour des tests : gcc -finput-charset=UTF-8 -fexec-charset=CP1252 -o Cryptage_V37.exe Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
+1. Si vous voulez une version locale, légère, idéale pour des tests : gcc -finput-charset=UTF-8 -fexec-charset=CP1252 -o Cryptage_V37.2.1.exe Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
    
 2. Si vous voulez compiler vous-même la version portable, très robuste et optimisée au maximum, qui est proposée en téléchargement : gcc -static -static-libgcc -Os -s -flto -fno-ident -fno-asynchronous-unwind-tables -ffunction-sections -fdata-sections -finput-charset=UTF-8 -fexec-charset=CP1252 -Wl,--gc-sections -Wl,--strip-all -Wl,--build-id=none -D_FORTIFY_SOURCE=2 -DNDEBUG -o Cryptage_V37.2.1.exe Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -I C:/msys64/mingw64/include -L C:/msys64/mingw64/lib -lssl -lcrypto -lws2_32 -lcrypt32 -lgdi32 -lcomctl32 -mwindows
 
