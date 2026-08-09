@@ -18,7 +18,7 @@
 
 ### Compatibilité des versions
 
-* **V37 / V37.1 / V37.2** : Déchiffre **UNIQUEMENT** les fichiers .crypt créés avec V37+
+* **V37 / V37.1 / V37.2 / V37.2.1** : Déchiffre **UNIQUEMENT** les fichiers .crypt créés avec V37+
 * **V31-V36** : Utilisez [Cryptage V36.1](https://github.com/BernardBourbaki/Cryptage/releases/tag/v36.1) pour déchiffrer les anciens fichiers
 
 ### Limites
