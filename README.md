@@ -106,9 +106,9 @@ Le panneau d’aide rapide, entièrement visible depuis la V37.1, reste accessib
 Le logiciel calcule automatiquement le paramètre mémoire optimal :
 
 * **Formule** : 25% de la RAM disponible
-* **Minimum** : 4 Mo (4096 KiB)
-* **Maximum** : 1024 Mo (1048576 KiB)
-* **Par défaut** : 16 Mo si le calcul échoue
+* **Minimum** : 4 Mio (4096 KiB)
+* **Maximum** : 1024 Mio (1 048 576 KiB)
+* **Par défaut** : 16 Mio si le calcul échoue
 
 ### Structure du fichier `.crypt`
 [AAD - 24 octets]
