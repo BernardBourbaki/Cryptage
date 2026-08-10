@@ -48,7 +48,7 @@
 
 1. For a local, lightweight build, ideal for testing:
    ```bash
-   gcc -finput-charset=UTF-8 -fexec-charset=CP1252 Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V37.2.1.exe -lssl -lcrypto -lws2_32 -lcrypt32 -lgdi32 -lcomctl32 -mwindows
+   gcc -finput-charset=UTF-8 -fexec-charset=CP1252 Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V37.2.1.exe -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
    ```
 
 2. To build the portable, highly robust, fully optimized version yourself - the one offered for download:
