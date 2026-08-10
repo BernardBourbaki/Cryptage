@@ -81,7 +81,7 @@
 
 ### Panneau "Prise en main rapide"
 
-Cliquez sur le bouton en bas de la fenêtre pour afficher/masquer les instructions détaillées (entièrement visible dans V37.1).
+Le panneau d’aide rapide, entièrement visible depuis la V37.1, reste accessible via le bouton en bas.
 
 ## 🔒 Bonnes pratiques de sécurité
 
