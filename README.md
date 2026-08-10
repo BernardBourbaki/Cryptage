@@ -49,7 +49,7 @@
 
 1. Si vous voulez une version locale, légère, idéale pour des tests :
    ```bash
-   gcc -finput-charset=UTF-8 -fexec-charset=CP1252 Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V37.2.1.exe -lssl -lcrypto -lws2_32 -lcrypt32 -lgdi32 -lcomctl32 -mwindows
+   gcc -finput-charset=UTF-8 -fexec-charset=CP1252 Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V37.2.1.exe -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
    ```
    
 2. Si vous voulez compiler vous-même la version portable, très robuste et optimisée au maximum, qui est proposée en téléchargement :
