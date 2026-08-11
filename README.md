@@ -54,7 +54,7 @@
    
 2. Si vous voulez compiler vous-même la version portable, très robuste et optimisée au maximum, qui est proposée en téléchargement :
    ```bash
-   gcc -static -static-libgcc -Os -s -flto -fno-ident -fno-asynchronous-unwind-tables -ffunction-sections -fdata-sections -finput-charset=UTF-8 -fexec-charset=CP1252 -I/c/msys64/mingw64/include -L/c/msys64/mingw64/lib Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V37.2.1.exe -Wl,--gc-sections -Wl,--build-id=none -D_FORTIFY_SOURCE=2 -DNDEBUG -lssl -lcrypto -lwinpthread -lws2_32 -lcrypt32 -lgdi32 -lcomctl32 -mwindows
+   gcc -static -static-libgcc -Os -s -flto -fno-ident -fno-asynchronous-unwind-tables -ffunction-sections -fdata-sections -fstack-protector-strong -finput-charset=UTF-8 -fexec-charset=CP1252 -D_FORTIFY_SOURCE=2 -DNDEBUG -I/c/msys64/mingw64/include -L/c/msys64/mingw64/lib Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V37.2.1.exe -Wl,--gc-sections -Wl,--build-id=none -lssl -lcrypto -lwinpthread -lws2_32 -lcrypt32 -lgdi32 -lcomctl32 -mwindows
    ```
 **Note** : Cette commande est conçue pour **MSYS2 MinGW-w64** avec les chemins d’inclusion par défaut (`/c/msys64/mingw64`). Adaptez `-I` et `-L` à votre propre installation si nécessaire.
 
