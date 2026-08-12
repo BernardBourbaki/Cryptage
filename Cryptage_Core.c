@@ -1,7 +1,7 @@
 /**
  * Cryptage_Core.c
  * Algorithmes cryptographiques et fonctions de base
- * Version 372
+ * Version 373
  * (c) Bernard DÉMARET - 2026
  */
 
@@ -180,7 +180,7 @@ char* secure_get_edit_text(HWND hEdit, HWND hwnd, const char* context, size_t ma
         return NULL;
     }
 
-    if (context && strstr(context, "Chiffrement") && utf8_len > MAX_TEXT_LEN) {
+    if (context && strstr(context, "Chiffrement") && utf8_len > MAX_PLAINTEXT_SIZE) {
         show_error(hwnd, "Texte trop long après conversion UTF-8 : dépasse la limite de 10 Mo", context);
         secure_free(wide_text);
         return NULL;
@@ -521,7 +521,7 @@ const char* extract_file_extension(const char* filename) {
 }
 
 unsigned char* encrypt_data(HWND hwnd, const unsigned char* plaintext, size_t plaintext_len, const char* password, size_t* out_len, unsigned int memory_cost_kib) {
-    if (plaintext_len > MAX_TEXT_LEN) {
+    if (plaintext_len > MAX_PLAINTEXT_SIZE) {
         show_error(hwnd, "Données trop longues : limite de 10 Mo dépassée. Divisez votre fichier ou utilisez un outil adapté.", "Erreur Chiffrement");
         return NULL;
     }
@@ -759,11 +759,36 @@ int decrypt_data(HWND hwnd, const unsigned char* input, size_t input_len, const 
     return 0;
 }
 
+FILE* fopen_utf8(const char* utf8_path, const char* mode) {
+    if (!utf8_path || !mode) return NULL;
+
+    int wlen = MultiByteToWideChar(CP_UTF8, 0, utf8_path, -1, NULL, 0);
+    if (wlen <= 0) return NULL;
+
+    wchar_t* wpath = (wchar_t*)malloc((size_t)wlen * sizeof(wchar_t));
+    if (!wpath) return NULL;
+    MultiByteToWideChar(CP_UTF8, 0, utf8_path, -1, wpath, wlen);
+
+    wchar_t wmode[16] = {0};
+    int wmode_len = MultiByteToWideChar(CP_UTF8, 0, mode, -1, wmode, 16);
+    if (wmode_len <= 0) {
+        // Repli de sûreté : les modes utilisés dans ce programme ("rb", "wb", "w")
+        // sont toujours en ASCII pur, ce chemin ne devrait jamais être emprunté.
+        wcscpy(wmode, L"rb");
+    }
+
+    FILE* fp = _wfopen(wpath, wmode);
+    free(wpath);
+    return fp;
+}
+
 BOOL load_file_secure(const char* filename, unsigned char** data, size_t* data_len, HWND hwnd, BOOL show_success) {
     *data = NULL;
     *data_len = 0;
 
-    FILE* fp = fopen(filename, "rb");
+    // V37.3 : fopen_utf8 (au lieu de fopen) - filename est désormais en UTF-8,
+    // produit par open_file_dialog() via GetOpenFileNameW.
+    FILE* fp = fopen_utf8(filename, "rb");
     if (!check_file_operations(fp, "l'ouverture du fichier", hwnd)) {
         return FALSE;
     }
@@ -781,8 +806,12 @@ BOOL load_file_secure(const char* filename, unsigned char** data, size_t* data_l
         return FALSE;
     }
 
-    if (file_size > MAX_TEXT_LEN) {
-        show_error(hwnd, "Fichier trop volumineux : limite de 10 Mo dépassée. Divisez votre fichier ou utilisez un outil adapté.", "Erreur Chargement");
+    // V37.3 : MAX_CRYPT_SIZE (et non plus MAX_PLAINTEXT_SIZE) - un fichier .crypt valide
+    // contient 84 octets d'en-tête (AAD+SALT+NONCE+TAG) en plus du texte en clair d'origine.
+    // Avec l'ancienne limite, un .crypt issu d'un plaintext de 10 Mo pile ne pouvait plus
+    // être réimporté par le programme qui venait de le créer.
+    if ((size_t)file_size > MAX_CRYPT_SIZE) {
+        show_error(hwnd, "Fichier trop volumineux : limite de 10 Mo (+ 84 octets d'en-tête pour un .crypt) dépassée. Divisez votre fichier ou utilisez un outil adapté.", "Erreur Chargement");
         fclose(fp);
         return FALSE;
     }

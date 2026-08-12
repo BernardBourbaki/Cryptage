@@ -1,6 +1,6 @@
 /**
  * Cryptage.h
- * Header principal - Version 372
+ * Header principal - Version 373
  * (c) Bernard DÉMARET - 2026
  */
 
@@ -19,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <errno.h>
+#include <wchar.h>
 
 #include <openssl/evp.h>
 #include <openssl/rand.h>
@@ -66,6 +67,21 @@
 // Limites
 #define MAX_PASSWORD_LEN        64
 #define MAX_TEXT_LEN            (10 * 1024 * 1024)  // 10 Mo
+
+// V37.3 : limite explicite du texte en clair (alias de MAX_TEXT_LEN, conservé
+// pour compatibilité), et limite distincte pour le fichier .crypt sur disque,
+// qui ajoute 84 octets d'en-tête. Avant ce correctif, un fichier .crypt issu
+// d'un texte de 10 Mo pile ne pouvait plus être réimporté par le programme
+// qui venait de le créer - load_file_secure() appliquait la même limite que
+// encrypt_data() sans tenir compte de cet en-tête.
+#define MAX_PLAINTEXT_SIZE       MAX_TEXT_LEN
+#define CRYPT_OVERHEAD           (AAD_LEN + SALT_LEN + NONCE_LEN + TAG_LEN)
+#define MAX_CRYPT_SIZE           (MAX_PLAINTEXT_SIZE + CRYPT_OVERHEAD)
+
+// V37.3 : taille des buffers de chemin de fichier (UTF-8). 260 (MAX_PATH en
+// unités UTF-16) ne suffit plus une fois converti en UTF-8, où un caractère
+// accentué peut occuper jusqu'à 4 octets contre 2 en UTF-16.
+#define MAX_FILENAME_BUFFER      1024
 
 /* ========================================
  * STRUCTURE DES DONNÉES CHIFFRÉES V37
@@ -233,6 +249,17 @@ BOOL load_file_secure(const char* filename, unsigned char** data,
  */
 BOOL check_file_operations(FILE* fp, const char* operation, HWND hwnd);
 
+/**
+ * V37.3 : Ouvre un fichier dont le chemin est fourni en UTF-8, en passant
+ * par l'API Windows large (_wfopen) pour supporter tout chemin Unicode,
+ * pas seulement ceux représentables dans la page de code ANSI du système.
+ * Utilisée par load_file_secure() et par les fonctions save_*_file_secure()
+ * (Cryptage_UI_Common.c) - un seul point de conversion UTF-8 -> UTF-16 pour
+ * tout le programme, afin d'éviter toute reconversion accidentelle vers
+ * une page de code à mi-parcours.
+ */
+FILE* fopen_utf8(const char* utf8_path, const char* mode);
+
 /* ========================================
  * FONCTIONS UI COMMUNES
  * (Cryptage_UI_Common.c)
@@ -244,8 +271,12 @@ void show_success(HWND hwnd, const char* message, const char* title);
 void display_openssl_error(HWND hwnd, const char* operation);
 
 // Dialogues de fichiers
+// V37.3 : filter/ext passent en wchar_t* (littéraux L"...") pour permettre
+// l'affichage et la sélection de chemins Unicode via GetOpenFileNameW /
+// GetSaveFileNameW. filename/filename_size restent en UTF-8 (char*), la
+// conversion UTF-16 <-> UTF-8 est entièrement interne à cette fonction.
 BOOL open_file_dialog(HWND hwnd, char* filename, size_t filename_size, 
-                      const char* filter, const char* ext, BOOL save);
+                      const wchar_t* filter, const wchar_t* ext, BOOL save);
 
 // Barre de progression
 void update_progress_bar(HWND hwnd, AppContext* ctx, int percent);
@@ -350,4 +381,3 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 #endif
 
 #endif /* CRYPTAGE_H */
-

@@ -1,6 +1,6 @@
 /**
  * Cryptage_UI_Common.c
- * Fonctions UI communes - Version 372
+ * Fonctions UI communes - Version 373
  * (c) Bernard DÉMARET - 2026
  */
 
@@ -55,19 +55,45 @@ void display_openssl_error(HWND hwnd, const char* operation) {
 
 /**
  * Ouvre une boîte de dialogue pour sélectionner/sauvegarder un fichier
+ *
+ * V37.3 : passe par GetOpenFileNameW/GetSaveFileNameW (au lieu des
+ * variantes A) pour supporter tout chemin Unicode, pas seulement ceux
+ * représentables dans la page de code ANSI du système. filter et ext
+ * sont désormais des littéraux larges (L"..."), fournis par l'appelant.
+ * filename/filename_size restent en UTF-8 (char*) pour le reste du
+ * programme - la conversion UTF-16 <-> UTF-8 est entièrement interne
+ * à cette fonction, au même endroit que pour le texte
+ * (secure_get_edit_text / secure_set_edit_text).
  */
 BOOL open_file_dialog(HWND hwnd, char* filename, size_t filename_size,
-                       const char* filter, const char* ext, BOOL save) {
-    OPENFILENAMEA ofn = {0};
-    ofn.lStructSize = sizeof(OPENFILENAMEA);
+                       const wchar_t* filter, const wchar_t* ext, BOOL save) {
+    wchar_t wide_filename[MAX_FILENAME_BUFFER] = {0};
+
+    // Si l'appelant a pré-rempli filename (ex. un nom par défaut proposé
+    // pour la sauvegarde), le convertir en UTF-16 pour pré-remplir le
+    // dialogue - GetSaveFileNameW lit le contenu initial du buffer.
+    if (filename[0] != '\0') {
+        MultiByteToWideChar(CP_UTF8, 0, filename, -1, wide_filename, MAX_FILENAME_BUFFER);
+    }
+
+    OPENFILENAMEW ofn = {0};
+    ofn.lStructSize = sizeof(OPENFILENAMEW);
     ofn.hwndOwner = hwnd;
     ofn.lpstrFilter = filter;
-    ofn.lpstrFile = filename;
-    ofn.nMaxFile = (DWORD)filename_size;
+    ofn.lpstrFile = wide_filename;
+    ofn.nMaxFile = MAX_FILENAME_BUFFER;
     ofn.lpstrDefExt = ext;
     ofn.Flags = OFN_PATHMUSTEXIST | (save ? OFN_OVERWRITEPROMPT : OFN_FILEMUSTEXIST);
 
-    return save ? GetSaveFileNameA(&ofn) : GetOpenFileNameA(&ofn);
+    BOOL result = save ? GetSaveFileNameW(&ofn) : GetOpenFileNameW(&ofn);
+    if (!result) return FALSE;
+
+    // Reconvertir le chemin choisi (UTF-16) en UTF-8 pour le reste du
+    // programme.
+    int utf8_len = WideCharToMultiByte(CP_UTF8, 0, wide_filename, -1,
+                                        filename, (int)filename_size,
+                                        NULL, NULL);
+    return utf8_len > 0;
 }
 
 /* ========================================
@@ -153,7 +179,9 @@ unsigned int get_memory_param(AppContext* ctx) {
  */
 BOOL save_binary_file_secure(const char* filename, const unsigned char* data,
                               size_t data_len, HWND hwnd) {
-    FILE* fp = fopen(filename, "wb");
+    // V37.3 : fopen_utf8 (au lieu de fopen) - filename est en UTF-8,
+    // produit par open_file_dialog() via GetSaveFileNameW.
+    FILE* fp = fopen_utf8(filename, "wb");
     if (!check_file_operations(fp, "l'ouverture du fichier pour écriture", hwnd)) {
         return FALSE;
     }
@@ -191,7 +219,8 @@ BOOL save_decrypted_text_file_secure(const char* filename, HWND hOutputEdit) {
 
     GetWindowTextA(hOutputEdit, text, text_len + 1);
 
-    FILE* fp = fopen(filename, "w");
+    // V37.3 : fopen_utf8 (au lieu de fopen) - filename est en UTF-8.
+    FILE* fp = fopen_utf8(filename, "w");
     if (!fp) {
         secure_clean_and_free(text, text_len + 1);
         return FALSE;
@@ -210,7 +239,8 @@ BOOL save_decrypted_text_file_secure(const char* filename, HWND hOutputEdit) {
  */
 BOOL save_image_file_secure(const char* filename, const unsigned char* data,
                              size_t data_len, const char* extension, HWND hwnd) {
-    FILE* fp = fopen(filename, "wb");
+    // V37.3 : fopen_utf8 (au lieu de fopen) - filename est en UTF-8.
+    FILE* fp = fopen_utf8(filename, "wb");
     if (!check_file_operations(fp, "l'ouverture du fichier pour écriture", hwnd)) {
         return FALSE;
     }

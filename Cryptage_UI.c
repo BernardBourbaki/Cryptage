@@ -1,6 +1,6 @@
 /**
  * Cryptage_UI.c
- * Interface utilisateur unique - Version 372
+ * Interface utilisateur unique - Version 373
  * (c) Bernard DÉMARET - 2026
  */
 
@@ -282,29 +282,23 @@ void handle_import(HWND hwnd, AppContext* ctx) {
         return;
     }
 
-    char filename[260] = "";
-    const char* filter =
-        "Tous fichiers supportés\0*.txt;*.jpg;*.jpeg;*.png;*.bmp;*.crypt\0"
-        "Texte (*.txt)\0*.txt\0"
-        "Images (*.jpg;*.jpeg;*.png;*.bmp)\0*.jpg;*.jpeg;*.png;*.bmp\0"
-        "Fichiers cryptés (*.crypt)\0*.crypt\0"
-        "Tous les fichiers (*.*)\0*.*\0";
+    // V37.3 : buffer élargi (1024, était 260) - une fois le chemin choisi
+    // reconverti en UTF-8 par open_file_dialog(), un chemin plein de
+    // caractères accentués peut dépasser 260 octets même si le chemin
+    // Windows sous-jacent (en UTF-16) reste dans la limite MAX_PATH.
+    char filename[MAX_FILENAME_BUFFER] = "";
+    const wchar_t* filter =
+        L"Tous fichiers supportés\0*.txt;*.jpg;*.jpeg;*.png;*.bmp;*.crypt\0"
+        L"Texte (*.txt)\0*.txt\0"
+        L"Images (*.jpg;*.jpeg;*.png;*.bmp)\0*.jpg;*.jpeg;*.png;*.bmp\0"
+        L"Fichiers cryptés (*.crypt)\0*.crypt\0"
+        L"Tous les fichiers (*.*)\0*.*\0";
 
     if (!open_file_dialog(hwnd, filename, sizeof(filename), filter, NULL, FALSE)) {
         return;
     }
 
     reset_decrypt_state(ctx);
-
-    // V37.2.1 : réinitialiser l'extension d'origine pour éviter toute
-    // incohérence entre imports successifs (ex: image -> fichier .crypt)
-    if (ctx->state.original_extension) {
-        secure_free(ctx->state.original_extension);
-        ctx->state.original_extension = NULL;
-        ctx->state.original_extension_len = 0;
-    }
-
-    // Charger le fichier
 
     // Charger le fichier
     unsigned char* data = NULL;
@@ -521,10 +515,11 @@ void handle_save(HWND hwnd, AppContext* ctx) {
         return;
     }
 
-    char filename[260] = "encrypted.crypt";
+    // V37.3 : buffer élargi (1024, était 260) - voir handle_import.
+    char filename[MAX_FILENAME_BUFFER] = "encrypted.crypt";
     if (open_file_dialog(hwnd, filename, sizeof(filename),
-                          "Fichiers cryptés (*.crypt)\0*.crypt\0Tous les fichiers (*.*)\0*.*\0",
-                          "crypt", TRUE)) {
+                          L"Fichiers cryptés (*.crypt)\0*.crypt\0Tous les fichiers (*.*)\0*.*\0",
+                          L"crypt", TRUE)) {
         if (save_binary_file_secure(filename, bin_data, bin_len, hwnd)) {
             secure_free(bin_data);
             handle_clear(ctx);
@@ -644,10 +639,11 @@ void handle_export_text(HWND hwnd, AppContext* ctx) {
         return;
     }
 
-    char filename[260] = "decrypted.txt";
+    // V37.3 : buffer élargi (1024, était 260) - voir handle_import.
+    char filename[MAX_FILENAME_BUFFER] = "decrypted.txt";
     if (open_file_dialog(hwnd, filename, sizeof(filename),
-                          "Fichiers texte (*.txt)\0*.txt\0Tous les fichiers (*.*)\0*.*\0",
-                          "txt", TRUE)) {
+                          L"Fichiers texte (*.txt)\0*.txt\0Tous les fichiers (*.*)\0*.*\0",
+                          L"txt", TRUE)) {
         if (save_decrypted_text_file_secure(filename, ctx->hOutputEdit)) {
             handle_clear(ctx);
             update_buttons(ctx);
@@ -690,24 +686,34 @@ void handle_export_image(HWND hwnd, AppContext* ctx) {
         return;
     }
 
-    // Détecter le format
+    // Détecter le format.
+    // V37.3 : ext (UTF-8, pour le nom de fichier via snprintf) et w_ext
+    // (large, pour open_file_dialog) sont désormais distincts - voir
+    // Cryptage.h pour le changement de signature d'open_file_dialog.
     const char* ext = NULL;
-    const char* filter = NULL;
+    const wchar_t* w_ext = NULL;
+    const wchar_t* filter = NULL;
+    wchar_t w_ext_buf[8] = {0};
 
     if (data_len >= 3 && data[0] == 0xFF && data[1] == 0xD8 && data[2] == 0xFF) {
         ext = "jpg";
-        filter = "JPEG (*.jpg)\0*.jpg\0Tous les fichiers (*.*)\0*.*\0";
+        w_ext = L"jpg";
+        filter = L"JPEG (*.jpg)\0*.jpg\0Tous les fichiers (*.*)\0*.*\0";
     }
     else if (data_len >= 8 && memcmp(data, "\x89PNG\r\n\x1A\n", 8) == 0) {
         ext = "png";
-        filter = "PNG (*.png)\0*.png\0Tous les fichiers (*.*)\0*.*\0";
+        w_ext = L"png";
+        filter = L"PNG (*.png)\0*.png\0Tous les fichiers (*.*)\0*.*\0";
     }
     else if (data_len >= 2 && data[0] == 'B' && data[1] == 'M') {
         ext = "bmp";
-        filter = "BMP (*.bmp)\0*.bmp\0Tous les fichiers (*.*)\0*.*\0";
+        w_ext = L"bmp";
+        filter = L"BMP (*.bmp)\0*.bmp\0Tous les fichiers (*.*)\0*.*\0";
     }
     else if (ctx->state.original_extension) {
         ext = ctx->state.original_extension;
+        MultiByteToWideChar(CP_UTF8, 0, ext, -1, w_ext_buf, 8);
+        w_ext = w_ext_buf;
     }
     else {
         show_error(hwnd, "Format image non reconnu", "Erreur");
@@ -715,12 +721,13 @@ void handle_export_image(HWND hwnd, AppContext* ctx) {
         return;
     }
 
-    char filename[260];
+    // V37.3 : buffer élargi (1024, était 260) - voir handle_import.
+    char filename[MAX_FILENAME_BUFFER];
     snprintf(filename, sizeof(filename), "decrypted_image.%s", ext);
 
     if (open_file_dialog(hwnd, filename, sizeof(filename),
-                          filter ? filter : "Tous les fichiers (*.*)\0*.*\0",
-                          ext, TRUE)) {
+                          filter ? filter : L"Tous les fichiers (*.*)\0*.*\0",
+                          w_ext, TRUE)) {
         if (save_image_file_secure(filename, data, data_len, ext, hwnd)) {
             secure_free(data);
             handle_clear(ctx);
