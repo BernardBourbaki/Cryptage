@@ -33,7 +33,7 @@
 
 ### Windows (Executable)
 
-1. Download Cryptage_V37.3.exe from [Releases](https://github.com/BernardBourbaki/Cryptage/releases/latest)
+1. Download Cryptage_V37.3.1.exe from [Releases](https://github.com/BernardBourbaki/Cryptage/releases/latest)
 2. Verify the SHA256 checksum (see checksums.txt)
 3. Run the executable (no installation required)
 
