@@ -1,6 +1,6 @@
 /**
  * Cryptage.h
- * Header principal - Version 373
+ * Header principal - Version 3731
  * (c) Bernard DÉMARET - 2026
  */
 
@@ -109,7 +109,7 @@
  * - Données chiffrées
  */
 
-#define CURRENT_VERSION 370 // Version actuelle : 37.3
+#define CURRENT_VERSION 370 // Version actuelle : 37.3.1
 #define VERSION CURRENT_VERSION
 
 /* ========================================
