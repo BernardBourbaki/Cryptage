@@ -1,8 +1,8 @@
-# Cryptage V37.3
+# Cryptage V37.3.1
 
 **Secure encryption for text files and images**
 
-[![Version](https://img.shields.io/badge/version-37.3-blue.svg)](https://github.com/BernardBourbaki/Cryptage/releases)
+[![Version](https://img.shields.io/badge/version-37.3.1-blue.svg)](https://github.com/BernardBourbaki/Cryptage/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![OpenSSL](https://img.shields.io/badge/OpenSSL-3.2+-red.svg)](https://www.openssl.org/)
 
@@ -17,7 +17,7 @@
 
 ### Version compatibility
 
-* **V37 / V37.1 / V37.2 / V37.2.1 / V37.3**: Decrypts **ONLY** .crypt files created with V37+
+* **V37 / V37.1 / V37.2 / V37.2.1 / V37.3 / V37.3.1**: Decrypts **ONLY** .crypt files created with V37+
 * **V31-V36**: Use [Cryptage V36.1](https://github.com/BernardBourbaki/Cryptage/releases/tag/v36.1) to decrypt older files
 
 ### Limits
@@ -48,12 +48,12 @@
 
 1. For a local, lightweight build, ideal for testing:
    ```bash
-   gcc -finput-charset=UTF-8 -fexec-charset=CP1252 Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V37.3.exe -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
+   gcc -finput-charset=UTF-8 -fexec-charset=CP1252 Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V37.3.1.exe -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
    ```
 
 2. To build the portable, highly robust, fully optimized version yourself - the one offered for download:
    ```bash
-   gcc -static -static-libgcc -Os -s -flto -fno-ident -fno-asynchronous-unwind-tables -ffunction-sections -fdata-sections -fstack-protector-strong -finput-charset=UTF-8 -fexec-charset=CP1252 -D_FORTIFY_SOURCE=2 -DNDEBUG -I/c/msys64/mingw64/include -L/c/msys64/mingw64/lib Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V37.3.exe -Wl,--gc-sections -Wl,--build-id=none -lssl -lcrypto -lwinpthread -lws2_32 -lcrypt32 -lgdi32 -lcomctl32 -mwindows
+   gcc -static -static-libgcc -Os -s -flto -fno-ident -fno-asynchronous-unwind-tables -ffunction-sections -fdata-sections -fstack-protector-strong -finput-charset=UTF-8 -fexec-charset=CP1252 -D_FORTIFY_SOURCE=2 -DNDEBUG -I/c/msys64/mingw64/include -L/c/msys64/mingw64/lib Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V37.3.1.exe -Wl,--gc-sections -Wl,--build-id=none -lssl -lcrypto -lwinpthread -lws2_32 -lcrypt32 -lgdi32 -lcomctl32 -mwindows
    ```
 **Note**: This command is designed for **MSYS2 MinGW-w64** with the default include paths (`/c/msys64/mingw64`). Adjust `-I` and `-L` to match your own installation if needed.
 
@@ -90,7 +90,7 @@ The quick-help panel, fully visible since V37.1, remains accessible via the butt
 * Use passwords of at least 16 characters
 * Keep your passwords in a secure password manager
 * Test decryption **before** deleting the original
-* Keep several copies of the Cryptage_V37.3.exe program
+* Keep several copies of the Cryptage_V37.3.1.exe program
 
 ❌ **DON'T**:
 
