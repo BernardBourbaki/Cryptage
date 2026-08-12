@@ -124,6 +124,13 @@ Mémoire Argon2id (4) : en KiB
 [TAG - 16 octets]
 [CIPHERTEXT - variable]
 
+## Nouveautés V37.3.1 (12 août 2026)
+
+#### Correction
+
+- 🐛 Rétablissement de la réinitialisation de l'extension d'origine (`original_extension`) lors de l'import d'un fichier. Cela garantit qu'importer successivement une image puis un fichier `.crypt` ne laisse plus de résidus dans l'état interne du programme (régression corrigée par rapport à la V37.2.1).
+
+
 ## 📊 Nouveautés V37.3 (12 août 2026)
 
 ### Corrections et améliorations (V37.3)
@@ -136,6 +143,7 @@ Voir les [Issues fermées](https://github.com/BernardBourbaki/Cryptage/issues?q=
 ## 📊 Nouveautés V37.2.1 (9 août 2026)
 
 ### Corrections (V37.2.1)
+
 - 🐛 Réinitialisation propre de l'extension d'origine entre imports successifs (évite qu'une extension JPG/PNG/BMP persiste lors de l'import d'un fichier .crypt)
 
 ## 📊 Nouveautés V37.2 (9 août 2026)
