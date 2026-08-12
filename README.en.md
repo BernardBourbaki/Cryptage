@@ -123,6 +123,12 @@ Argon2id memory (4): in KiB
 [TAG - 16 bytes]
 [CIPHERTEXT - variable]
 
+## 📊 What's new in V37.3.1 (August 12, 2026)
+
+### Fixes (V37.3.1)
+
+- 🐛 Restored the reset of the original extension (`original_extension`) during file import. This ensures that importing an image followed by a `.crypt` file no longer leaves stale data in the internal program state (regression fix compared to V37.2.1).
+
 ## 📊 What's new in V37.3 (August 12, 2026)
 
 ### Fixes and improvements (V37.3)
