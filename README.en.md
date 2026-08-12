@@ -127,7 +127,7 @@ Argon2id memory (4): in KiB
 
 ### Fixes (V37.3.1)
 
-- 🐛 Restored the reset of the original extension (`original_extension`) during file import. This ensures that importing an image followed by a `.crypt` file no longer leaves stale data in the internal program state (regression fix compared to V37.2.1).
+- 🐛 Restored the reset of the original extension (`original_extension`) during file import. This ensures that importing an image followed by a `.crypt` file no longer leaves stale data in the internal program state (regression introduced in V37.3 and now fixed — the V37.2.1 fix had been inadvertently dropped).
 
 ## 📊 What's new in V37.3 (August 12, 2026)
 
