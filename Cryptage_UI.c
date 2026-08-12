@@ -300,6 +300,13 @@ void handle_import(HWND hwnd, AppContext* ctx) {
 
     reset_decrypt_state(ctx);
 
+    // V37.2.1 / V37.3 : réinitialiser l'extension d'origine entre imports successifs
+    if (ctx->state.original_extension) {
+        secure_free(ctx->state.original_extension);
+        ctx->state.original_extension = NULL;
+        ctx->state.original_extension_len = 0;
+    }
+    
     // Charger le fichier
     unsigned char* data = NULL;
     size_t data_len = 0;
