@@ -79,7 +79,7 @@ HWND create_main_window(HINSTANCE hInstance, int nCmdShow) {
     HWND hwnd = CreateWindowExA(
         0,
         "CryptoMainClass",
-        "Cryptage V37.3 (c) Bernard DÉMARET",
+        "Cryptage V37.3.1 (c) Bernard DÉMARET",
         WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, CW_USEDEFAULT,
         900, 800,
