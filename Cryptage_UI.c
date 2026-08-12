@@ -1,6 +1,6 @@
 /**
  * Cryptage_UI.c
- * Interface utilisateur unique - Version 373
+ * Interface utilisateur unique - Version 3731
  * (c) Bernard DÉMARET - 2026
  */
 
@@ -300,7 +300,7 @@ void handle_import(HWND hwnd, AppContext* ctx) {
 
     reset_decrypt_state(ctx);
 
-    // V37.2.1 / V37.3 : réinitialiser l'extension d'origine entre imports successifs
+    // V37.2.1 / V37.3.1 : réinitialiser l'extension d'origine entre imports successifs
     if (ctx->state.original_extension) {
         secure_free(ctx->state.original_extension);
         ctx->state.original_extension = NULL;
