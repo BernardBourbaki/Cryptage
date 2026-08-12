@@ -124,7 +124,7 @@ Mémoire Argon2id (4) : en KiB
 [TAG - 16 octets]
 [CIPHERTEXT - variable]
 
-## Nouveautés V37.3.1 (12 août 2026)
+## 📊 Nouveautés V37.3.1 (12 août 2026)
 
 #### Correction
 
