@@ -1,6 +1,6 @@
 /**
  * Cryptage_Main.c
- * Point d'entrée principal - Version 373
+ * Point d'entrée principal - Version 3731
  * (c) Bernard DÉMARET - 2026
  */
 
