@@ -126,7 +126,7 @@ Mémoire Argon2id (4) : en KiB
 
 ## 📊 Nouveautés V37.3.1 (12 août 2026)
 
-### Corrections et améliorations (V37.3.1)
+### Corrections (V37.3.1)
 
 - 🐛 Rétablissement de la réinitialisation de l'extension d'origine (`original_extension`) lors de l'import d'un fichier. Cela garantit qu'importer successivement une image puis un fichier `.crypt` ne laisse plus de résidus dans l'état interne du programme (régression corrigée par rapport à la V37.2.1).
 
