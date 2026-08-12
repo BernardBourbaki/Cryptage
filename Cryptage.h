@@ -109,7 +109,7 @@
  * - Données chiffrées
  */
 
-#define CURRENT_VERSION 370 // Version actuelle : 37.2
+#define CURRENT_VERSION 370 // Version actuelle : 37.3
 #define VERSION CURRENT_VERSION
 
 /* ========================================
