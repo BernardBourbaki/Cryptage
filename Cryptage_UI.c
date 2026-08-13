@@ -227,8 +227,10 @@ void update_buttons(AppContext* ctx) {
         SET_BUTTON_STATE(ctx->hEncryptBtn, (input_len > 0) && !ctx->state.encrypted);
         SET_BUTTON_STATE(ctx->hSaveBtn, ctx->state.encrypted);
         SET_BUTTON_STATE(ctx->hDecryptBtn, input_len > 0);
-        SET_BUTTON_STATE(ctx->hExportTextBtn, FALSE);
-        SET_BUTTON_STATE(ctx->hExportImageBtn, FALSE);
+        SET_BUTTON_STATE(ctx->hExportTextBtn,
+            ctx->state.decrypted && ctx->state.decrypted_type == CONTENT_TYPE_TEXT);
+        SET_BUTTON_STATE(ctx->hExportImageBtn,
+            ctx->state.decrypted && ctx->state.decrypted_type == CONTENT_TYPE_IMAGE);
     } else if (ctx->state.file_type == FILE_TYPE_CRYPT) {
         // Fichier .crypt importé
         SET_BUTTON_STATE(ctx->hEncryptBtn, FALSE);
@@ -256,8 +258,10 @@ void update_buttons(AppContext* ctx) {
         SET_BUTTON_STATE(ctx->hEncryptBtn, (input_len > 0) && !ctx->state.encrypted);
         SET_BUTTON_STATE(ctx->hSaveBtn, ctx->state.encrypted);
         SET_BUTTON_STATE(ctx->hDecryptBtn, input_len > 0);
-        SET_BUTTON_STATE(ctx->hExportTextBtn, FALSE);
-        SET_BUTTON_STATE(ctx->hExportImageBtn, FALSE);
+        SET_BUTTON_STATE(ctx->hExportTextBtn,
+            ctx->state.decrypted && ctx->state.decrypted_type == CONTENT_TYPE_TEXT);
+        SET_BUTTON_STATE(ctx->hExportImageBtn,
+            ctx->state.decrypted && ctx->state.decrypted_type == CONTENT_TYPE_IMAGE);
     }
 }
 
