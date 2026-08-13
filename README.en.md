@@ -1,8 +1,8 @@
-# Cryptage V37.3.1
+# Cryptage V38.0.0
 
 **Secure encryption for text files and images**
 
-[![Version](https://img.shields.io/badge/version-37.3.1-blue.svg)](https://github.com/BernardBourbaki/Cryptage/releases)
+[![Version](https://img.shields.io/badge/version-38.0.0-blue.svg)](https://github.com/BernardBourbaki/Cryptage/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![OpenSSL](https://img.shields.io/badge/OpenSSL-3.2+-red.svg)](https://www.openssl.org/)
 
@@ -17,7 +17,7 @@
 
 ### Version compatibility
 
-* **V37 / V37.1 / V37.2 / V37.2.1 / V37.3 / V37.3.1**: Decrypts **ONLY** .crypt files created with V37+
+* **V37 / V37.1 / V37.2 / V37.2.1 / V37.3 / V37.3.1 / V38.0.0**: Decrypts **ONLY** .crypt files created with V37+
 * **V31-V36**: Use [Cryptage V36.1](https://github.com/BernardBourbaki/Cryptage/releases/tag/v36.1) to decrypt older files
 
 ### Limits
@@ -33,7 +33,7 @@
 
 ### Windows (Executable)
 
-1. Download Cryptage_V37.3.1.exe from [Releases](https://github.com/BernardBourbaki/Cryptage/releases/latest)
+1. Download Cryptage_V38.0.0.exe from [Releases](https://github.com/BernardBourbaki/Cryptage/releases/latest)
 2. Verify the SHA256 checksum (see checksums.txt)
 3. Run the executable (no installation required)
 
@@ -47,37 +47,57 @@
 **Command**:
 
 1. For a local, lightweight build, ideal for testing:
-   ```bash
-   gcc -finput-charset=UTF-8 -fexec-charset=CP1252 Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V37.3.1.exe -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
-   ```
+ ```bash
+ gcc -finput-charset=UTF-8 -fexec-charset=CP1252 Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V38.0.0.exe -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
+ ```
 
 2. To build the portable, highly robust, fully optimized version yourself - the one offered for download:
-   ```bash
-   gcc -static -static-libgcc -Os -s -flto -fno-ident -fno-asynchronous-unwind-tables -ffunction-sections -fdata-sections -fstack-protector-strong -finput-charset=UTF-8 -fexec-charset=CP1252 -D_FORTIFY_SOURCE=2 -DNDEBUG -I/c/msys64/mingw64/include -L/c/msys64/mingw64/lib Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V37.3.1.exe -Wl,--gc-sections -Wl,--build-id=none -lssl -lcrypto -lwinpthread -lws2_32 -lcrypt32 -lgdi32 -lcomctl32 -mwindows
-   ```
+ ```bash
+ gcc -static -static-libgcc -Os -s -flto -fno-ident -fno-asynchronous-unwind-tables -ffunction-sections -fdata-sections -fstack-protector-strong -finput-charset=UTF-8 -fexec-charset=CP1252 -D_FORTIFY_SOURCE=2 -DNDEBUG -I/c/msys64/mingw64/include -L/c/msys64/mingw64/lib Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V38.0.0.exe -Wl,--gc-sections -Wl,--build-id=none -lssl -lcrypto -lwinpthread -lws2_32 -lcrypt32 -lgdi32 -lcomctl32 -mwindows
+ ```
 **Note**: This command is designed for **MSYS2 MinGW-w64** with the default include paths (`/c/msys64/mingw64`). Adjust `-I` and `-L` to match your own installation if needed.
 
 ## 📖 Usage
 
-### Simple 3-step interface
+### Simple interface
 
-#### To encrypt a file
+#### To encrypt a text file or image
 
 1. **Create a strong password** (16+ characters recommended)
-   * Use KeePass, Bitwarden, or another password manager
-   * ⚠️ **NEVER** send the password together with the encrypted file
+  * Use KeePass, Bitwarden, or another password manager
+  * ⚠️ **NEVER** send the password together with the encrypted file
 2. **IMPORT** → **ENCRYPT** → **SAVE**
-   * Click "IMPORTER" and select your file
-   * Click "CHIFFRER"
-   * Click "SAUVEGARDER" to create the .crypt file
+  * Click "IMPORTER" and select your file
+  * Click "CHIFFRER"
+  * Click "SAUVEGARDER" to create the .crypt file
 
-#### To decrypt a file
+#### To encrypt text entered directly
+
+1. **Type or paste** your text directly into the "Entrée" (Input) area
+2. Enter your password
+3. Click **CHIFFRER**
+4. The hexadecimal result appears in "Sortie" (Output) — you can **copy-paste** it into an email
+
+#### To decrypt a .crypt file
 
 1. **Enter the password** used during encryption
 2. **IMPORT** → **DECRYPT** → **EXPORT**
-   * Click "IMPORTER" and select the .crypt file
-   * Click "DÉCHIFFRER"
-   * Click "EXPORTER" (Text or Image depending on content)
+  * Click "IMPORTER" and select the .crypt file
+  * Click "DÉCHIFFRER"
+  * Click "EXPORTER" (Text or Image depending on content)
+
+#### To decrypt pasted hexadecimal text
+
+1. **Paste** the received hexadecimal text (from email, messaging...) into the "Entrée" area
+2. Enter your password
+3. Click **DÉCHIFFRER**
+4. The plaintext appears in "Sortie"
+
+#### To modify imported text before encryption
+
+1. **IMPORT** a .txt file
+2. **Edit** the text directly in the "Entrée" area
+3. Click **CHIFFRER** — the **modified** text will be encrypted
 
 ### "Quick start" panel
 
@@ -90,7 +110,7 @@ The quick-help panel, fully visible since V37.1, remains accessible via the butt
 * Use passwords of at least 16 characters
 * Keep your passwords in a secure password manager
 * Test decryption **before** deleting the original
-* Keep several copies of the Cryptage_V37.3.1.exe program
+* Keep several copies of the Cryptage_V38.0.0.exe program
 
 ❌ **DON'T**:
 
@@ -111,6 +131,7 @@ The software automatically calculates the optimal memory parameter:
 * **Default**: 16 MB if the calculation fails
 
 ### `.crypt` file structure
+```
 [AAD - 24 bytes]
 
 Version (4): 370 (decimal)
@@ -122,66 +143,56 @@ Argon2id memory (4): in KiB
 [NONCE - 12 bytes]
 [TAG - 16 bytes]
 [CIPHERTEXT - variable]
+```
 
-## 📊 What's new in V37.3.1 (August 12, 2026)
+## 📊 What's new in V38.0.0 (August 13, 2026)
 
-### Fixes (V37.3.1)
+### New features (V38.0.0)
 
-- 🐛 Restored the reset of the original extension (`original_extension`) during file import. This ensures that importing an image followed by a `.crypt` file no longer leaves stale data in the internal program state (regression introduced in V37.3 and now fixed — the V37.2.1 fix had been inadvertently dropped).
+* ✨ **Editable "Entrée" area**: text can be typed, edited or pasted directly into the "Entrée" area without going through a file
+* ✨ **Encryption from "Entrée" area**: for text, the **current** content of the area is encrypted, not the original file
+* ✨ **Decryption from hexadecimal**: hexadecimal text pasted into "Entrée" can be decrypted directly, without an intermediate .crypt file
+* ✨ **Email/messaging workflow**: encrypt text, copy the hexadecimal from "Sortie", paste it into an email — the recipient can decrypt it directly
 
-## 📊 What's new in V37.3 (August 12, 2026)
+### Compatibility
 
-### Fixes and improvements (V37.3)
+* 🔧 **Unchanged .crypt format**: V38 .crypt files remain compatible with V37.3.1 and vice versa
+* 🔧 **No new source files**: the existing 6 source files are sufficient
 
-- 🐛 Fixed an inconsistency between the plaintext limit (10 MB) and the corresponding .crypt file limit, which adds 84 bytes of header: a file encrypted at the maximum size could become too large to be re-imported by the very program that created it
-- ✨ Full support for Unicode file paths (import, encryption, decryption, export) — a file or folder name containing characters not representable in the system's code page (beyond French accents) now works normally
+### Minor fixes
 
-See [closed Issues](https://github.com/BernardBourbaki/Cryptage/issues?q=is%3Aissue+is%3Aclosed) for details on each fix.
+* 🔧 Improved font charset handling (`DEFAULT_CHARSET` instead of `ANSI_CHARSET`)
 
-## 📊 What's new in V37.2.1 (August 9, 2026)
+## 📊 Version history
 
-### Fixes (V37.2.1)
-- 🐛 Clean reset of the original file extension between successive imports (prevents a JPG/PNG/BMP extension from persisting when importing a .crypt file)
+### V37.3.1 (August 12, 2026)
 
-## 📊 What's new in V37.2 (August 9, 2026)
+* 🐛 Restored the reset of the original extension (`original_extension`) during file import
 
-### Fixes (V37.2)
+### V37.3 (August 12, 2026)
 
-- 🐛 Fixed a possible out-of-bounds read when decrypting a truncated or corrupted .crypt file
-- 🐛 Fixed a one-byte overflow during memory cleanup after encryption
-- 🐛 Fixed a memory leak on image import (JPG/PNG/BMP)
-- 🐛 Fixed a possible crash when closing the app while an operation is in progress
-- 🐛 Fixed a GDI handle leak when redrawing buttons
-- 🔧 Cleaned up a poorly-defined reserved area in the .crypt file header (no impact on existing files, format unchanged)
+* 🐛 Fixed an inconsistency between the plaintext limit (10 MB) and the corresponding .crypt file limit
+* ✨ Full support for Unicode file paths
 
-See [closed Issues](https://github.com/BernardBourbaki/Cryptage/issues?q=is%3Aissue+is%3Aclosed) for details on each fix.
+### V37.2.1 (August 9, 2026)
 
-## 📊 What's new in V37.1 (December 17, 2025)
+* 🐛 Clean reset of the original file extension between successive imports
 
-### Interface improvements (V37.1)
+### V37.2 (August 9, 2026)
 
-* ✨ Harmonious spacing between button groups (airier and more readable)
-* ✨ "Quick start" panel fully visible, with a direct link to V36.1
-* ✨ Taller window for improved visual comfort
+* 🐛 Memory safety and robustness fixes
 
-### What's new in V37 (compared to V36.1)
+### V37.1 (December 17, 2025)
 
-* ✨ Simplified single-window interface
-* ✨ Automatic detection of older versions
-* ✨ Clearer error messages
-* ✨ Limit raised to 10 MB (from 2 MB)
-* ✨ Built-in help panel
-* 🔧 Simplified code architecture
+* ✨ Interface improvements
 
-### Incompatibility
+### V37
 
-⚠️ **V37+ does NOT decrypt V31-V36 files**
-
-To decrypt older files, download [Cryptage V36.1](https://github.com/BernardBourbaki/Cryptage/releases/tag/v36.1)
+* ✨ Simplified single-window interface, limit raised to 10 MB
 
 ## 🐛 Known issues
 
-None at the moment.
+* The display of Cyrillic or Japanese characters in the interface text areas may be limited by Windows ANSI controls. Encryption/decryption of these characters works correctly internally (via UTF-8), but their visual display may be replaced by `?`. Unicode file names are fully supported.
 
 Report bugs via [Issues](https://github.com/BernardBourbaki/Cryptage/issues).
 
