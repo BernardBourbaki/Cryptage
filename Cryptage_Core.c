@@ -1,14 +1,14 @@
 /**
  * Cryptage_Core.c
  * Algorithmes cryptographiques et fonctions de base
- * Version 3731
+ * Version 3800
  * (c) Bernard DÉMARET - 2026
  */
 
 #include "Cryptage.h"
-#include <winsock2.h>
-#include <openssl/core_names.h>
-#include <windows.h>
+// plus de #include <winsock2.h>
+// plus de #include <windows.h>
+// core_names.h est déjà dans Cryptage.h
 
 // Déclaration anticipée
 static BOOL check_virtuallock_result(void* ptr, size_t size, HWND hwnd);

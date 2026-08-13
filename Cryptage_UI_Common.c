@@ -1,6 +1,6 @@
 /**
  * Cryptage_UI_Common.c
- * Fonctions UI communes - Version 3731
+ * Fonctions UI communes - Version 3800
  * (c) Bernard DÉMARET - 2026
  */
 
@@ -385,6 +385,9 @@ void handle_clear(AppContext* ctx) {
     SetWindowTextA(ctx->hInputEdit, "");
     SetWindowTextA(ctx->hOutputEdit, "");
 
+    // V38 : réactiver l'édition sur la zone Entrée
+    SendMessageA(ctx->hInputEdit, EM_SETREADONLY, FALSE, 0);
+
     // Libérer les données
     if (ctx->state.loaded_data) {
         secure_free(ctx->state.loaded_data);
@@ -449,14 +452,14 @@ void create_fonts(AppContext* ctx) {
     // Police Courier New pour les champs de texte
     ctx->hFont = CreateFontA(
         16, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
-        ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+        DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
         DEFAULT_QUALITY, FIXED_PITCH | FF_MODERN, "Courier New"
     );
 
     // Police grasse pour les labels
     ctx->hBoldFont = CreateFontA(
         15, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE,
-        ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+        DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
         DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Segoe UI"
     );
 }

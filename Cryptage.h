@@ -1,6 +1,6 @@
 /**
  * Cryptage.h
- * Header principal - Version 3731
+ * Header principal - Version 3800
  * (c) Bernard DÉMARET - 2026
  */
 
@@ -13,9 +13,11 @@
 
 #include <winsock2.h>        // IMPORTANT : avant windows.h
 #include <windows.h>
+#include <commctrl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <errno.h>
@@ -25,48 +27,50 @@
 #include <openssl/rand.h>
 #include <openssl/err.h>
 #include <openssl/kdf.h>
+#include <openssl/core_names.h>
+#include <openssl/params.h>
 
 /* ========================================
  * CONSTANTES CRYPTOGRAPHIQUES
  * ======================================== */
 
 // Tailles des éléments cryptographiques
-#define SALT_LEN                32      // Longueur du sel Argon2id
-#define NONCE_LEN               12      // Longueur du nonce AES-GCM
-#define TAG_LEN                 16      // Longueur du tag d'authentification
-#define KEY_LEN                 32      // Longueur de la clé AES-256
+#define SALT_LEN 32          // Longueur du sel Argon2id
+#define NONCE_LEN 12         // Longueur du nonce AES-GCM
+#define TAG_LEN 16           // Longueur du tag d'authentification
+#define KEY_LEN 32           // Longueur de la clé AES-256
 
 // Paramètres Argon2id
-#define DEFAULT_MEMORY_COST_KIB 16384   // 16 Mo par défaut
-#define TIME_COST               3       // 3 itérations
-#define PARALLELISM             1       // 1 thread
+#define DEFAULT_MEMORY_COST_KIB 16384  // 16 Mo par défaut
+#define TIME_COST 3                      // 3 itérations
+#define PARALLELISM 1                    // 1 thread
 
 // Compatibilité noms alternatifs (pour Cryptage_Core.c)
-#define ARGON2_T_COST           TIME_COST
-#define ARGON2_PARALLELISM      PARALLELISM
-#define DERIVED_KEY_LEN         KEY_LEN
+#define ARGON2_T_COST TIME_COST
+#define ARGON2_PARALLELISM PARALLELISM
+#define DERIVED_KEY_LEN KEY_LEN
 
 // Longueur des données additionnelles authentifiées (AAD)
-#define AAD_LEN                 24      // Version(4) + Reserved(16) + MemKiB(4)
+#define AAD_LEN 24  // Version(4) + Reserved(16) + MemKiB(4)
 
 // Offsets dans l'AAD
-#define VERSION_OFFSET 0        // Offset de la version
-#define PLAINTEXT_LEN_OFFSET 16 // Offset de la longueur du plaintext
-#define MEMORY_OFFSET 20        // Offset du paramètre mémoire
+#define VERSION_OFFSET 0          // Offset de la version
+#define PLAINTEXT_LEN_OFFSET 16   // Offset de la longueur du plaintext
+#define MEMORY_OFFSET 20          // Offset du paramètre mémoire
 // Note : offsets 4-15 sont réservés (zéros), non utilisés à ce jour
 
 // Codes d'extension d'images (dans la zone réservée AAD)
-#define EXT_NONE                0
-#define EXT_JPG                 1
-#define EXT_PNG                 2
-#define EXT_BMP                 3
+#define EXT_NONE 0
+#define EXT_JPG 1
+#define EXT_PNG 2
+#define EXT_BMP 3
 
 // Formatage hexadécimal
-#define HEX_COLUMNS             16      // 16 octets par ligne
+#define HEX_COLUMNS 16  // 16 octets par ligne
 
 // Limites
-#define MAX_PASSWORD_LEN        64
-#define MAX_TEXT_LEN            (10 * 1024 * 1024)  // 10 Mo
+#define MAX_PASSWORD_LEN 64
+#define MAX_TEXT_LEN (10 * 1024 * 1024)  // 10 Mo
 
 // V37.3 : limite explicite du texte en clair (alias de MAX_TEXT_LEN, conservé
 // pour compatibilité), et limite distincte pour le fichier .crypt sur disque,
@@ -74,14 +78,14 @@
 // d'un texte de 10 Mo pile ne pouvait plus être réimporté par le programme
 // qui venait de le créer - load_file_secure() appliquait la même limite que
 // encrypt_data() sans tenir compte de cet en-tête.
-#define MAX_PLAINTEXT_SIZE       MAX_TEXT_LEN
-#define CRYPT_OVERHEAD           (AAD_LEN + SALT_LEN + NONCE_LEN + TAG_LEN)
-#define MAX_CRYPT_SIZE           (MAX_PLAINTEXT_SIZE + CRYPT_OVERHEAD)
+#define MAX_PLAINTEXT_SIZE MAX_TEXT_LEN
+#define CRYPT_OVERHEAD (AAD_LEN + SALT_LEN + NONCE_LEN + TAG_LEN)
+#define MAX_CRYPT_SIZE (MAX_PLAINTEXT_SIZE + CRYPT_OVERHEAD)
 
 // V37.3 : taille des buffers de chemin de fichier (UTF-8). 260 (MAX_PATH en
 // unités UTF-16) ne suffit plus une fois converti en UTF-8, où un caractère
 // accentué peut occuper jusqu'à 4 octets contre 2 en UTF-16.
-#define MAX_FILENAME_BUFFER      1024
+#define MAX_FILENAME_BUFFER 1024
 
 /* ========================================
  * STRUCTURE DES DONNÉES CHIFFRÉES V37
@@ -91,33 +95,33 @@
  * Format du fichier crypté :
  *
  * [AAD - 24 octets]
- * - Version (4 octets, little-endian) : 370
- * - Réservé (12 octets) : extensibilité future, initialisés à zéro
- * - Longueur du plaintext (4 octets, little-endian)
- * - MemKiB (4 octets, little-endian) : paramètre mémoire Argon2id
+ *   - Version (4 octets, little-endian) : 370
+ *   - Réservé (12 octets) : extensibilité future, initialisés à zéro
+ *   - Longueur du plaintext (4 octets, little-endian)
+ *   - MemKiB (4 octets, little-endian) : paramètre mémoire Argon2id
  *
  * [SALT - 32 octets]
- * - Sel aléatoire pour Argon2id
+ *   - Sel aléatoire pour Argon2id
  *
  * [NONCE - 12 octets]
- * - Nonce aléatoire pour AES-GCM
+ *   - Nonce aléatoire pour AES-GCM
  *
  * [TAG - 16 octets]
- * - Tag d'authentification AES-GCM
+ *   - Tag d'authentification AES-GCM
  *
  * [CIPHERTEXT - longueur variable]
- * - Données chiffrées
+ *   - Données chiffrées
  */
 
-#define CURRENT_VERSION 370 // Version actuelle : 37.3.1
+#define CURRENT_VERSION 370 // Format inchangé V37 → V38
 #define VERSION CURRENT_VERSION
 
 /* ========================================
  * MESSAGES WINDOWS PERSONNALISÉS
  * ======================================== */
 
-#define WM_USER_PROGRESS        (WM_USER + 1)
-#define WM_USER_COMPLETE        (WM_USER + 2)
+#define WM_USER_PROGRESS (WM_USER + 1)
+#define WM_USER_COMPLETE (WM_USER + 2)
 
 /* ========================================
  * INCLUDE DES STRUCTURES D'ÉTAT
@@ -138,19 +142,19 @@ BOOL init_portable_openssl(void);
 /**
  * Chiffre des données avec AES-256-GCM + Argon2id
  */
-unsigned char* encrypt_data(HWND hwnd, const unsigned char* plaintext, 
-                           size_t plaintext_len, const char* password,
-                           size_t* ciphertext_len, unsigned int mem_kib);
+unsigned char* encrypt_data(HWND hwnd, const unsigned char* plaintext,
+    size_t plaintext_len, const char* password,
+    size_t* ciphertext_len, unsigned int mem_kib);
 
 /**
  * Déchiffre des données avec AES-256-GCM + Argon2id
- * 
+ *
  * @return 0 en cas de succès, 1 si mot de passe incorrect, -1 en cas d'erreur
  */
-int decrypt_data(HWND hwnd, const unsigned char* ciphertext, 
-                size_t ciphertext_len, const char* password,
-                unsigned char** plaintext, size_t* plaintext_len,
-                unsigned int mem_kib);
+int decrypt_data(HWND hwnd, const unsigned char* ciphertext,
+    size_t ciphertext_len, const char* password,
+    unsigned char** plaintext, size_t* plaintext_len,
+    unsigned int mem_kib);
 
 /* ========================================
  * UTILITAIRES CRYPTOGRAPHIQUES
@@ -205,8 +209,8 @@ void secure_clean_and_free(void* ptr, size_t size);
 /**
  * Récupère le texte d'un contrôle Edit de manière sécurisée
  */
-char* secure_get_edit_text(HWND hEdit, HWND hwnd, const char* error_title, 
-                           size_t max_len);
+char* secure_get_edit_text(HWND hEdit, HWND hwnd, const char* error_title,
+    size_t max_len);
 
 /**
  * Définit le texte d'un contrôle Edit de manière sécurisée
@@ -241,8 +245,8 @@ BOOL is_valid_hex(const char* hex);
 /**
  * Charge un fichier de manière sécurisée
  */
-BOOL load_file_secure(const char* filename, unsigned char** data, 
-                      size_t* len, HWND hwnd, BOOL text_mode);
+BOOL load_file_secure(const char* filename, unsigned char** data,
+    size_t* len, HWND hwnd, BOOL text_mode);
 
 /**
  * Vérifie les opérations sur fichiers
@@ -275,8 +279,8 @@ void display_openssl_error(HWND hwnd, const char* operation);
 // l'affichage et la sélection de chemins Unicode via GetOpenFileNameW /
 // GetSaveFileNameW. filename/filename_size restent en UTF-8 (char*), la
 // conversion UTF-16 <-> UTF-8 est entièrement interne à cette fonction.
-BOOL open_file_dialog(HWND hwnd, char* filename, size_t filename_size, 
-                      const wchar_t* filter, const wchar_t* ext, BOOL save);
+BOOL open_file_dialog(HWND hwnd, char* filename, size_t filename_size,
+    const wchar_t* filter, const wchar_t* ext, BOOL save);
 
 // Barre de progression
 void update_progress_bar(HWND hwnd, AppContext* ctx, int percent);
@@ -290,15 +294,15 @@ void update_memory_default(AppContext* ctx);
 unsigned int get_memory_param(AppContext* ctx);
 
 // Sauvegarde de fichiers
-BOOL save_binary_file_secure(const char* filename, const unsigned char* data, 
-                              size_t data_len, HWND hwnd);
+BOOL save_binary_file_secure(const char* filename, const unsigned char* data,
+    size_t data_len, HWND hwnd);
 BOOL save_decrypted_text_file_secure(const char* filename, HWND hOutputEdit);
-BOOL save_image_file_secure(const char* filename, const unsigned char* data, 
-                             size_t data_len, const char* extension, HWND hwnd);
+BOOL save_image_file_secure(const char* filename, const unsigned char* data,
+    size_t data_len, const char* extension, HWND hwnd);
 
 // Détection de type
-FileType detect_file_type(const unsigned char* data, size_t data_len, 
-                          AppContext* ctx);
+FileType detect_file_type(const unsigned char* data, size_t data_len,
+    AppContext* ctx);
 
 // Réinitialisation
 void reset_decrypt_state(AppContext* ctx);
@@ -373,8 +377,8 @@ typedef struct {
 extern "C" {
 #endif
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, 
-                   LPSTR lpCmdLine, int nCmdShow);
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+    LPSTR lpCmdLine, int nCmdShow);
 
 #ifdef __cplusplus
 }
