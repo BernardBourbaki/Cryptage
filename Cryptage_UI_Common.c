@@ -1,13 +1,13 @@
 /**
  * Cryptage_UI_Common.c
- * Fonctions UI communes - Version 3801
+ * Fonctions UI communes - Version 3802
  * (c) Bernard DÉMARET - 2026
  */
 
 #include "Cryptage.h"
 #include "Cryptage_State.h"
-#include <windows.h>
-#include <commctrl.h>
+#include <commdlg.h>
+#include <shlobj.h>
 
 /* ========================================
  * GESTION DES MESSAGES ET ERREURS
@@ -365,7 +365,7 @@ FileType detect_file_type(const unsigned char* data, size_t data_len,
     for (size_t i = 0; i < check_len; i++) {
         if (data[i] == 0 ||
             (data[i] < 32 && data[i] != '\t' &&
-             data[i] != '\r' && data[i] != '\n')) {
+            data[i] != '\r' && data[i] != '\n')) {
             is_text = FALSE;
             break;
         }

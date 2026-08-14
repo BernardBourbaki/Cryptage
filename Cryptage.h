@@ -1,6 +1,6 @@
 /**
  * Cryptage.h
- * Header principal - Version 3801
+ * Header principal - Version 3802
  * (c) Bernard DÉMARET - 2026
  */
 
@@ -11,22 +11,23 @@
  * INCLUDES SYSTÈME
  * ======================================== */
 
-#include <openssl/evp.h>  // IMPORTANT : avant windows.h
-#include <openssl/kdf.h>
-#include <openssl/err.h>
-#include <openssl/rand.h>
-#include <openssl/core_names.h>
+#include <winsock2.h>  // IMPORTANT : avant windows.h
+#include <windows.h>
+#include <wincrypt.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-#include <errno.h>
 #include <time.h>
+#include <errno.h>
+#include <ctype.h>
+#include <stdint.h>
+#include <stdbool.h>
 
-#include <windows.h>
-#include <commctrl.h>
-#include <wingdi.h>
-#include <shlobj.h>
+#include <openssl/evp.h>
+#include <openssl/rand.h>
+#include <openssl/err.h>
+#include <openssl/kdf.h>
+#include <openssl/core_names.h>  // V38.0.2 : constantes OSSL_KDF_PARAM_* pour Argon2id
 
 /* ========================================
  * CONSTANTES CRYPTOGRAPHIQUES
@@ -52,9 +53,9 @@
 #define AAD_LEN 24  // Version(4) + Reserved(16) + MemKiB(4)
 
 // Offsets dans l'AAD
-#define VERSION_OFFSET 0           // Offset de la version
-#define PLAINTEXT_LEN_OFFSET 16    // Offset de la longueur du plaintext
-#define MEMORY_OFFSET 20           // Offset du paramètre mémoire
+#define VERSION_OFFSET 0          // Offset de la version
+#define PLAINTEXT_LEN_OFFSET 16   // Offset de la longueur du plaintext
+#define MEMORY_OFFSET 20          // Offset du paramètre mémoire
 // Note : offsets 4-15 sont réservés (zéros), non utilisés à ce jour
 
 // Codes d'extension d'images (dans la zone réservée AAD)
@@ -364,12 +365,7 @@ typedef struct {
  * MACROS UTILITAIRES
  * ======================================== */
 
-#define SECURE_ZERO(ptr, size) \
-    do { \
-        if ((ptr) && (size) > 0) { \
-            SecureZeroMemory((ptr), (size)); \
-        } \
-    } while(0)
+#define SECURE_ZERO(ptr, size)     do {         if ((ptr) && (size) > 0) {             SecureZeroMemory((ptr), (size));         }     } while(0)
 
 #define IS_VALID_PTR(ptr) ((ptr) != NULL)
 

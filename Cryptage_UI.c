@@ -1,13 +1,13 @@
 /**
  * Cryptage_UI.c
- * Interface utilisateur unique - Version 3801
+ * Interface utilisateur unique - Version 3802
  * (c) Bernard DÉMARET - 2026
  */
 
 #include "Cryptage.h"
 #include "Cryptage_State.h"
-#include <windows.h>
 #include <commctrl.h>
+#include <windowsx.h>
 
 /* ========================================
  * IDENTIFIANTS DES CONTRÔLES
@@ -633,8 +633,6 @@ void handle_decrypt(HWND hwnd, AppContext* ctx) {
         return;
     }
 
-    unsigned int mem_kib = ctx->state.mem_kib;
-
     unsigned char* text_copy = secure_malloc(hwnd, text_len, TRUE);
     if (!text_copy) {
         secure_clean_and_free(password, strlen(password));
@@ -663,7 +661,6 @@ void handle_decrypt(HWND hwnd, AppContext* ctx) {
     op->text = text_copy;
     op->text_len = text_len;
     op->password = password;
-    op->mem_kib = mem_kib;
     op->is_encrypt = FALSE;
 
     ctx->state.operation_in_progress = TRUE;
@@ -827,6 +824,9 @@ void handle_operation_complete(HWND hwnd, AppContext* ctx,
                 secure_free(hex);
             }
             ctx->state.encrypted = TRUE;
+            // V38.0.2 : réinitialiser l'état decrypted après un chiffrement réussi
+            ctx->state.decrypted = FALSE;
+            ctx->state.decrypted_type = CONTENT_TYPE_NONE;
             show_success(hwnd, "Chiffrement réussi !", "Succès");
             reset_decrypt_state(ctx);
         } else {
@@ -839,7 +839,7 @@ void handle_operation_complete(HWND hwnd, AppContext* ctx,
             for (size_t i = 0; i < check_len; i++) {
                 if (op->result[i] == 0 ||
                     (op->result[i] < 32 && op->result[i] != '\t' &&
-                     op->result[i] != '\r' && op->result[i] != '\n')) {
+                    op->result[i] != '\r' && op->result[i] != '\n')) {
                     is_text = FALSE;
                     break;
                 }
@@ -859,6 +859,8 @@ void handle_operation_complete(HWND hwnd, AppContext* ctx,
             }
 
             ctx->state.decrypted = TRUE;
+            // V38.0.2 : réinitialiser l'état encrypted après un déchiffrement réussi
+            ctx->state.encrypted = FALSE;
             show_success(hwnd, "Déchiffrement réussi !", "Succès");
             reset_decrypt_state(ctx);
         } else if (wParam == 1) {

@@ -1,13 +1,13 @@
 /**
  * Cryptage_Core.c
  * Algorithmes cryptographiques et fonctions de base
- * Version 3801
+ * Version 3802
  * (c) Bernard DÉMARET - 2026
  */
 
 #include "Cryptage.h"
-// plus de #include <openssl/err.h>
 // plus de #include <openssl/rand.h>
+// plus de #include <openssl/evp.h>
 // core_names.h est déjà dans Cryptage.h
 
 // Déclaration anticipée
@@ -261,6 +261,9 @@ char* bin_to_hex(const unsigned char* data, size_t len) {
     const size_t num_lines = (len + HEX_COLUMNS - 1) / HEX_COLUMNS;
     const size_t buffer_size = len * 3 + num_lines * 2 + 1;
 
+    // V38.0.2 : force_lock=FALSE car le buffer hex peut atteindre ~31 Mo
+    // pour une image de 10 Mo, ce qui dépasserait souvent le quota de
+    // verrouillage. Le buffer est effacé via secure_free() à sa libération.
     char* buffer = secure_malloc(NULL, buffer_size, FALSE);
     if (!buffer) return NULL;
 

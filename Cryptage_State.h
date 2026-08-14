@@ -1,6 +1,6 @@
 /**
  * Cryptage_State.h
- * Structures d'état - Version 3801
+ * Structures d'état - Version 3802
  * (c) Bernard DÉMARET - 2026
  */
 
@@ -8,7 +8,7 @@
 #define CRYPTAGE_STATE_H
 
 #include <windows.h>
-#include <stddef.h>
+#include <stdint.h>
 
 /* ========================================
  * ÉNUMÉRATIONS
@@ -77,11 +77,11 @@ typedef struct {
     HWND hwnd;
 
     // Handles des contrôles communs
-    HWND hKeyEdit;        // Champ mot de passe
-    HWND hTogglePwdBtn;   // Bouton Afficher/Masquer
-    HWND hInputEdit;      // Zone Entrée
-    HWND hOutputEdit;     // Zone Sortie
-    HWND hProgressBar;    // Barre de progression
+    HWND hKeyEdit;       // Champ mot de passe
+    HWND hTogglePwdBtn;  // Bouton Afficher/Masquer
+    HWND hInputEdit;     // Zone Entrée
+    HWND hOutputEdit;    // Zone Sortie
+    HWND hProgressBar;   // Barre de progression
 
     // Handles des boutons
     HWND hImportBtn;
@@ -93,12 +93,12 @@ typedef struct {
     HWND hClearBtn;
 
     // Panneau d'aide
-    HWND hHelpPanel;      // Panneau "Prise en main rapide"
-    BOOL help_expanded;   // Panneau déplié/replié
+    HWND hHelpPanel;     // Panneau "Prise en main rapide"
+    BOOL help_expanded;  // Panneau déplié/replié
 
     // Polices
-    HFONT hFont;          // Police Courier New
-    HFONT hBoldFont;      // Police grasse
+    HFONT hFont;         // Police Courier New
+    HFONT hBoldFont;     // Police grasse
 
     // État partagé
     SharedState state;
@@ -137,16 +137,7 @@ typedef struct {
 /**
  * Réinitialise l'état partagé
  */
-#define RESET_SHARED_STATE(state) \
-    do { \
-        (state)->file_imported = FALSE; \
-        (state)->file_type = FILE_TYPE_NONE; \
-        (state)->file_size = 0; \
-        (state)->encrypted = FALSE; \
-        (state)->decrypted = FALSE; \
-        (state)->decrypted_type = CONTENT_TYPE_NONE; \
-        (state)->decrypt_attempt_failed = FALSE; \
-    } while(0)
+#define RESET_SHARED_STATE(state)     do {         (state)->file_imported = FALSE;         (state)->file_type = FILE_TYPE_NONE;         (state)->file_size = 0;         (state)->encrypted = FALSE;         (state)->decrypted = FALSE;         (state)->decrypted_type = CONTENT_TYPE_NONE;         (state)->decrypt_attempt_failed = FALSE;     } while(0)
 
 /**
  * Vérifie si une opération est en cours
@@ -156,13 +147,11 @@ typedef struct {
 /**
  * Active/Désactive un bouton
  */
-#define SET_BUTTON_STATE(hwnd, enabled) \
-    EnableWindow((hwnd), (enabled) ? TRUE : FALSE)
+#define SET_BUTTON_STATE(hwnd, enabled)     EnableWindow((hwnd), (enabled) ? TRUE : FALSE)
 
 /**
  * Met en surbrillance un bouton
  */
-#define HIGHLIGHT_BUTTON(hwnd, highlight) \
-    InvalidateRect((hwnd), NULL, TRUE)
+#define HIGHLIGHT_BUTTON(hwnd, highlight)     InvalidateRect((hwnd), NULL, TRUE)
 
 #endif /* CRYPTAGE_STATE_H */

@@ -1,12 +1,12 @@
 /**
  * Cryptage_Main.c
- * Point d'entrée principal - Version 3801
+ * Point d'entrée principal - Version 3802
  * (c) Bernard DÉMARET - 2026
  */
 
 #include "Cryptage.h"
 #include "Cryptage_State.h"
-#include <openssl/evp.h>
+#include <windows.h>
 
 /* ========================================
  * VARIABLES GLOBALES
@@ -77,7 +77,7 @@ HWND create_main_window(HINSTANCE hInstance, int nCmdShow) {
     HWND hwnd = CreateWindowExA(
         0,
         "CryptoMainClass",
-        "Cryptage V38.0.1 (c) Bernard DÉMARET",
+        "Cryptage V38.0.2 (c) Bernard DÉMARET",
         WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, CW_USEDEFAULT,
         900, 800,
