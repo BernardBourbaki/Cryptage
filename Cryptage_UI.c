@@ -1,43 +1,44 @@
 /**
  * Cryptage_UI.c
- * Interface utilisateur unique - Version 3800
+ * Interface utilisateur unique - Version 3801
  * (c) Bernard DÉMARET - 2026
  */
 
 #include "Cryptage.h"
 #include "Cryptage_State.h"
-#include <string.h>
+#include <windows.h>
+#include <commctrl.h>
 
 /* ========================================
  * IDENTIFIANTS DES CONTRÔLES
  * ======================================== */
 
-#define ID_KEY_EDIT         1001
-#define ID_TOGGLE_PWD_BTN   1002
-#define ID_INPUT_EDIT       1003
-#define ID_OUTPUT_EDIT      1004
-#define ID_PROGRESS_BAR     1005
+#define ID_KEY_EDIT 1001
+#define ID_TOGGLE_PWD_BTN 1002
+#define ID_INPUT_EDIT 1003
+#define ID_OUTPUT_EDIT 1004
+#define ID_PROGRESS_BAR 1005
 
-#define ID_IMPORT_BTN       2001
-#define ID_ENCRYPT_BTN      2002
-#define ID_SAVE_BTN         2003
-#define ID_DECRYPT_BTN      2004
-#define ID_EXPORT_TEXT_BTN  2005
+#define ID_IMPORT_BTN 2001
+#define ID_ENCRYPT_BTN 2002
+#define ID_SAVE_BTN 2003
+#define ID_DECRYPT_BTN 2004
+#define ID_EXPORT_TEXT_BTN 2005
 #define ID_EXPORT_IMAGE_BTN 2006
-#define ID_CLEAR_BTN        2007
-#define ID_HELP_TOGGLE_BTN  2009
+#define ID_CLEAR_BTN 2007
+#define ID_HELP_TOGGLE_BTN 2009
 
 /* ========================================
  * COULEURS DES BOUTONS
  * ======================================== */
 
-#define COLOR_IMPORT        RGB(0, 188, 212)
-#define COLOR_ENCRYPT       RGB(76, 175, 80)
-#define COLOR_SAVE          RGB(255, 182, 193)
-#define COLOR_DECRYPT       RGB(33, 150, 243)
-#define COLOR_EXPORT_TEXT   RGB(230, 230, 250)
-#define COLOR_EXPORT_IMAGE  RGB(189, 252, 201)
-#define COLOR_CLEAR         RGB(244, 67, 54)
+#define COLOR_IMPORT RGB(0, 188, 212)
+#define COLOR_ENCRYPT RGB(76, 175, 80)
+#define COLOR_SAVE RGB(255, 182, 193)
+#define COLOR_DECRYPT RGB(33, 150, 243)
+#define COLOR_EXPORT_TEXT RGB(230, 230, 250)
+#define COLOR_EXPORT_IMAGE RGB(189, 252, 201)
+#define COLOR_CLEAR RGB(244, 67, 54)
 
 /* ========================================
  * DÉCLARATIONS DES FONCTIONS
@@ -297,6 +298,14 @@ void handle_import(HWND hwnd, AppContext* ctx) {
         ctx->state.original_extension_len = 0;
     }
 
+    // V38.0.1 : libérer l'ancien buffer loaded_data avant réassignation
+    // pour éviter une fuite de données sensibles en mémoire verrouillée
+    if (ctx->state.loaded_data) {
+        secure_free(ctx->state.loaded_data);
+        ctx->state.loaded_data = NULL;
+        ctx->state.loaded_len = 0;
+    }
+
     unsigned char* data = NULL;
     size_t data_len = 0;
     if (!load_file_secure(filename, &data, &data_len, hwnd, FALSE)) {
@@ -316,7 +325,7 @@ void handle_import(HWND hwnd, AppContext* ctx) {
         uint32_t version = read_uint32_le(data);
         if (version >= 31 && version < 370) {
             snprintf(msg, sizeof(msg),
-                "?? Fichier crypté v%u détecté (%u Mo) — %zu octets\n\n"
+                ">> Fichier crypté v%u détecté (%u Mo) — %zu octets\n\n"
                 "Ce fichier a été chiffré avec une version antérieure.\n\n"
                 "Pour le déchiffrer, utilisez :\n"
                 "Cryptage_V36.1.exe\n\n"

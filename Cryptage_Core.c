@@ -1,13 +1,13 @@
 /**
  * Cryptage_Core.c
  * Algorithmes cryptographiques et fonctions de base
- * Version 3800
+ * Version 3801
  * (c) Bernard DÉMARET - 2026
  */
 
 #include "Cryptage.h"
-// plus de #include <winsock2.h>
-// plus de #include <windows.h>
+// plus de #include <openssl/err.h>
+// plus de #include <openssl/rand.h>
 // core_names.h est déjà dans Cryptage.h
 
 // Déclaration anticipée
@@ -215,7 +215,9 @@ void secure_set_edit_text(HWND hEdit, const char* text, size_t len) {
     }
 
     if (wide_len <= 0) {
-        char* display_text = secure_malloc(NULL, len + 1, FALSE);
+        // V38.0.1 : force_lock = TRUE pour verrouiller les buffers temporaires
+        // contenant potentiellement du texte déchiffré en clair.
+        char* display_text = secure_malloc(NULL, len + 1, TRUE);
         if (!display_text) return;
         memcpy(display_text, text, len);
         display_text[len] = '\0';
@@ -225,7 +227,9 @@ void secure_set_edit_text(HWND hEdit, const char* text, size_t len) {
         return;
     }
 
-    wchar_t* wide_text = (wchar_t*)secure_malloc(NULL, (wide_len + 1) * sizeof(wchar_t), FALSE);
+    // V38.0.1 : force_lock = TRUE pour verrouiller les buffers de conversion
+    // UTF-16 contenant potentiellement du texte en clair.
+    wchar_t* wide_text = (wchar_t*)secure_malloc(NULL, (wide_len + 1) * sizeof(wchar_t), TRUE);
     if (!wide_text) return;
 
     int result = MultiByteToWideChar(CP_UTF8, 0, text, (int)len, wide_text, wide_len);
@@ -237,7 +241,8 @@ void secure_set_edit_text(HWND hEdit, const char* text, size_t len) {
         wide_text[result] = L'\0';
         SetWindowTextW(hEdit, wide_text);
     } else {
-        char* ansi_text = secure_malloc(NULL, len + 1, FALSE);
+        // V38.0.1 : force_lock = TRUE
+        char* ansi_text = secure_malloc(NULL, len + 1, TRUE);
         if (ansi_text) {
             memcpy(ansi_text, text, len);
             ansi_text[len] = '\0';
@@ -342,6 +347,18 @@ int hex_to_bin(const char* input, unsigned char** output, size_t* out_len) {
     return 0;
 }
 
+/**
+ * Vérifie la robustesse d'un mot de passe
+ * Critères : 8-64 caractères, maj+min+chiffre+symbole
+ *
+ * NOTE V38.0.1 : cette fonction analyse les octets individuellement
+ * via les fonctions C standard isupper/islower/isdigit/ispunct, qui
+ * ne reconnaissent correctement que les caractères ASCII (0-127).
+ * Les mots de passe UTF-8 multi-octets (cyrillique, CJK, etc.) peuvent
+ * être faussement rejetés comme "faibles" même s'ils satisfont les
+ * critères sémantiques. L'usage de gestionnaires de mots de passe
+ * générant du ASCII (KeePass, Bitwarden, etc.) est recommandé.
+ */
 int is_password_strong(const char* pwd) {
     const size_t len = strlen(pwd);
     if (len < 8 || len > MAX_PASSWORD_LEN) return 0;
@@ -435,9 +452,9 @@ void write_uint32_le(unsigned char* buf, uint32_t value) {
 
 uint32_t read_uint32_le(const unsigned char* buf) {
     return (uint32_t)buf[0] |
-           ((uint32_t)buf[1] << 8) |
-           ((uint32_t)buf[2] << 16) |
-           ((uint32_t)buf[3] << 24);
+        ((uint32_t)buf[1] << 8) |
+        ((uint32_t)buf[2] << 16) |
+        ((uint32_t)buf[3] << 24);
 }
 
 BOOL is_text_file(const char* filename) {

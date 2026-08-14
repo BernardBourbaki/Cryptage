@@ -1,8 +1,8 @@
-# Cryptage V38.0.0
+# Cryptage V38.0.1
 
 **Chiffrement sécurisé de fichiers texte et images**
 
-[![Version](https://img.shields.io/badge/version-38.0.0-blue.svg)](https://github.com/BernardBourbaki/Cryptage/releases)
+[![Version](https://img.shields.io/badge/version-38.0.1-blue.svg)](https://github.com/BernardBourbaki/Cryptage/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![OpenSSL](https://img.shields.io/badge/OpenSSL-3.2+-red.svg)](https://www.openssl.org/)
 
@@ -17,7 +17,7 @@
 
 ### Compatibilité des versions
 
-* **V37 / V37.1 / V37.2 / V37.2.1 / V37.3 / V37.3.1 / V38.0.0** : Déchiffre **UNIQUEMENT** les fichiers .crypt créés avec V37+
+* **V37 / V37.1 / V37.2 / V37.2.1 / V37.3 / V37.3.1 / V38.0.0 / V38.0.1** : Déchiffre **UNIQUEMENT** les fichiers .crypt créés avec V37+
 * **V31-V36** : Utilisez [Cryptage V36.1](https://github.com/BernardBourbaki/Cryptage/releases/tag/v36.1) pour déchiffrer les anciens fichiers
 
 ### Limites
@@ -33,7 +33,7 @@
 
 ### Windows (Exécutable)
 
-1. Téléchargez Cryptage_V38.0.0.exe depuis [Releases](https://github.com/BernardBourbaki/Cryptage/releases/latest)
+1. Téléchargez Cryptage_V38.0.1.exe depuis [Releases](https://github.com/BernardBourbaki/Cryptage/releases/latest)
 2. Vérifiez le checksum SHA256 (voir checksums.txt)
 3. Lancez l'exécutable (pas d'installation requise)
 
@@ -48,12 +48,12 @@
 
 1. Si vous voulez une version locale, légère, idéale pour des tests :
 ```bash
-gcc -finput-charset=UTF-8 -fexec-charset=CP1252 Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V38.0.0.exe -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
+gcc -finput-charset=UTF-8 -fexec-charset=CP1252 Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V38.0.1.exe -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
 ```
 
 2. Si vous voulez compiler vous-même la version portable, très robuste et optimisée au maximum, qui est proposée en téléchargement :
 ```bash
-gcc -static -static-libgcc -Os -s -flto -fno-ident -fno-asynchronous-unwind-tables -ffunction-sections -fdata-sections -fstack-protector-strong -finput-charset=UTF-8 -fexec-charset=CP1252 -D_FORTIFY_SOURCE=2 -DNDEBUG -I/c/msys64/mingw64/include -L/c/msys64/mingw64/lib Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V38.0.0.exe -Wl,--gc-sections -Wl,--build-id=none -lssl -lcrypto -lwinpthread -lws2_32 -lcrypt32 -lgdi32 -lcomctl32 -mwindows
+gcc -static -static-libgcc -Os -s -flto -fno-ident -fno-asynchronous-unwind-tables -ffunction-sections -fdata-sections -fstack-protector-strong -finput-charset=UTF-8 -fexec-charset=CP1252 -D_FORTIFY_SOURCE=2 -DNDEBUG -I/c/msys64/mingw64/include -L/c/msys64/mingw64/lib Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V38.0.1.exe -Wl,--gc-sections -Wl,--build-id=none -lssl -lcrypto -lwinpthread -lws2_32 -lcrypt32 -lgdi32 -lcomctl32 -mwindows
 ```
 **Note** : Cette commande est conçue pour **MSYS2 MinGW-w64** avec les chemins d'inclusion par défaut (`/c/msys64/mingw64`). Adaptez `-I` et `-L` à votre propre installation si nécessaire.
 
@@ -64,12 +64,12 @@ gcc -static -static-libgcc -Os -s -flto -fno-ident -fno-asynchronous-unwind-tabl
 #### Pour chiffrer un fichier texte ou image
 
 1. **Créez un mot de passe fort** (16+ caractères recommandés)
-   * Utilisez KeePass, Bitwarden ou un autre gestionnaire
-   * ⚠️ Ne transmettez **JAMAIS** le mot de passe avec le fichier chiffré
+  * Utilisez KeePass, Bitwarden ou un autre gestionnaire
+  * ⚠️ Ne transmettez **JAMAIS** le mot de passe avec le fichier chiffré
 2. **IMPORTER** → **CHIFFRER** → **SAUVEGARDER**
-   * Cliquez sur "IMPORTER" et sélectionnez votre fichier
-   * Cliquez sur "CHIFFRER"
-   * Cliquez sur "SAUVEGARDER" pour créer le fichier .crypt
+  * Cliquez sur "IMPORTER" et sélectionnez votre fichier
+  * Cliquez sur "CHIFFRER"
+  * Cliquez sur "SAUVEGARDER" pour créer le fichier .crypt
 
 #### Pour chiffrer du texte saisi directement
 
@@ -82,9 +82,9 @@ gcc -static -static-libgcc -Os -s -flto -fno-ident -fno-asynchronous-unwind-tabl
 
 1. **Entrez le mot de passe** utilisé lors du chiffrement
 2. **IMPORTER** → **DÉCHIFFRER** → **EXPORTER**
-   * Cliquez sur "IMPORTER" et sélectionnez le fichier .crypt
-   * Cliquez sur "DÉCHIFFRER"
-   * Cliquez sur "EXPORTER" (Texte ou Image selon le contenu)
+  * Cliquez sur "IMPORTER" et sélectionnez le fichier .crypt
+  * Cliquez sur "DÉCHIFFRER"
+  * Cliquez sur "EXPORTER" (Texte ou Image selon le contenu)
 
 #### Pour déchiffrer un texte hexadécimal collé
 
@@ -110,7 +110,7 @@ Le panneau d'aide rapide, entièrement visible depuis la V37.1, reste accessible
 * Utilisez des mots de passe de 16 caractères minimum
 * Conservez vos mots de passe dans un gestionnaire sécurisé
 * Testez le déchiffrement **avant** de supprimer l'original
-* Gardez plusieurs copies du logiciel Cryptage_V38.0.0.exe
+* Gardez plusieurs copies du logiciel Cryptage_V38.0.1.exe
 
 ❌ **À NE PAS FAIRE** :
 
@@ -145,6 +145,19 @@ Mémoire Argon2id (4) : en KiB
 [CIPHERTEXT - variable]
 ```
 
+## 📊 Nouveautés V38.0.1 (14 août 2026)
+
+### Corrections de robustesse et de sécurité mémoire
+
+* 🐛 **Exportation de texte déchiffré en UTF-8** : `save_decrypted_text_file_secure` utilise désormais `secure_get_edit_text` (API Unicode + conversion UTF-8) au lieu de `GetWindowTextLengthA`/`GetWindowTextA`. Cela élimine la corruption silencieuse des caractères non-ANSI (cyrillique, japonais, symboles mathématiques, etc.) lors de l'exportation d'un texte déchiffré.
+* 🐛 **Fuite mémoire sur import successif** : l'ancien buffer `loaded_data` est désormais libéré (`secure_free`) avant chaque nouvel import. Les données sensibles de l'import précédent ne persistent plus en mémoire verrouillée.
+* 🐛 **Vérification de `fclose` dans les sauvegardes** : les fonctions `save_binary_file_secure`, `save_decrypted_text_file_secure` et `save_image_file_secure` propagent désormais l'échec de `fclose` (écriture différée échouée, disque plein, etc.) à l'appelant, au lieu de signaler un succès erroné.
+* 🐛 **Verrouillage mémoire des buffers de conversion UI** : les buffers temporaires de `secure_set_edit_text` (UTF-16, ANSI, fallback) sont désormais alloués avec `force_lock = TRUE`, empêchant leur swapage sur disque pendant leur brève durée de vie.
+
+### Documentation
+
+* 📝 **Limitation UTF-8 du validateur de mot de passe** : `is_password_strong` analyse les octets individuellement via les fonctions C standard (`isupper`, `islower`, `isdigit`, `ispunct`), qui ne reconnaissent correctement que l'ASCII. Les mots de passe UTF-8 multi-octets peuvent être faussement rejetés. L'usage de gestionnaires de mots de passe générant de l'ASCII (KeePass, Bitwarden, etc.) reste recommandé.
+
 ## 📊 Nouveautés V38.0.0 (13 août 2026)
 
 ### Nouvelles fonctionnalités (V38.0.0)
@@ -159,7 +172,7 @@ Mémoire Argon2id (4) : en KiB
 * 🔧 **Format .crypt inchangé** : les fichiers .crypt V38 restent compatibles avec V37.3.1 et vice-versa
 * 🔧 **Aucun nouveau fichier source** : les 6 fichiers existants suffisent
 
-### Corrections mineures
+### Corrections mineures (V38.0.0)
 
 * 🔧 Amélioration de la gestion du jeu de caractères de la police (`DEFAULT_CHARSET` au lieu de `ANSI_CHARSET`)
 * 🔧 **Corrections post-release** (appliquées au fichier `Cryptage_UI.c` et à l'exécutable `Cryptage_V38.0.0.exe` en ligne sans changement de numéro de version) :
@@ -196,6 +209,7 @@ Mémoire Argon2id (4) : en KiB
 
 * L'affichage de caractères cyrilliques ou japonais dans les zones de texte de l'interface peut être limité par les contrôles ANSI de Windows. Le chiffrement/déchiffrement de ces caractères fonctionne correctement en interne (via UTF-8), mais leur affichage visuel peut être remplacé par des `?`. Les noms de fichiers Unicode sont pleinement supportés.
 * **Sécurité mémoire — zone « Entrée » éditable** : depuis la V38.0.0, la zone « Entrée » est éditable (saisie libre, modification d'un texte importé). Les contrôles `Edit` multilignes de Windows conservent un historique d'annulation interne (`Ctrl+Z`) géré par le système d'exploitation, hors du contrôle du programme. Des copies transitoires du texte en clair peuvent donc persister temporairement en mémoire process, non effacées par le mécanisme `secure_malloc`/`secure_free` de Cryptage. Ce phénomène est inhérent aux contrôles Win32 et ne constitue pas une faille propre à Cryptage ; il est signalé ici par transparence.
+* **Validateur de mot de passe et UTF-8** (V38.0.1, limitation documentée) : la vérification de robustesse (`is_password_strong`) analyse les octets individuellement via les fonctions C standard (`isupper`, `islower`, `isdigit`, `ispunct`), qui ne reconnaissent correctement que les caractères ASCII (0-127). Un mot de passe UTF-8 multi-octets contenant majuscule, minuscule, chiffre et symbole peut être faussement rejeté comme "faible". L'usage de gestionnaires de mots de passe générant de l'ASCII (KeePass, Bitwarden, etc.) est recommandé.
 
 Signalez les bugs via [Issues](https://github.com/BernardBourbaki/Cryptage/issues).
 

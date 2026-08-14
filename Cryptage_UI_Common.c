@@ -1,6 +1,6 @@
 /**
  * Cryptage_UI_Common.c
- * Fonctions UI communes - Version 3800
+ * Fonctions UI communes - Version 3801
  * (c) Bernard DÉMARET - 2026
  */
 
@@ -38,13 +38,13 @@ void display_openssl_error(HWND hwnd, const char* operation) {
         ERR_error_string_n(err, err_msg, sizeof(err_msg));
         char full_msg[512];
         snprintf(full_msg, sizeof(full_msg),
-                 "Erreur lors de %s :\n\n%s", operation, err_msg);
+            "Erreur lors de %s :\n\n%s", operation, err_msg);
         MessageBoxA(hwnd, full_msg, "Erreur OpenSSL", MB_ICONERROR);
         ERR_clear_error();
     } else {
         char full_msg[512];
         snprintf(full_msg, sizeof(full_msg),
-                 "Erreur inconnue lors de %s", operation);
+            "Erreur inconnue lors de %s", operation);
         MessageBoxA(hwnd, full_msg, "Erreur OpenSSL", MB_ICONERROR);
     }
 }
@@ -66,7 +66,7 @@ void display_openssl_error(HWND hwnd, const char* operation) {
  * (secure_get_edit_text / secure_set_edit_text).
  */
 BOOL open_file_dialog(HWND hwnd, char* filename, size_t filename_size,
-                       const wchar_t* filter, const wchar_t* ext, BOOL save) {
+    const wchar_t* filter, const wchar_t* ext, BOOL save) {
     wchar_t wide_filename[MAX_FILENAME_BUFFER] = {0};
 
     // Si l'appelant a pré-rempli filename (ex. un nom par défaut proposé
@@ -91,8 +91,8 @@ BOOL open_file_dialog(HWND hwnd, char* filename, size_t filename_size,
     // Reconvertir le chemin choisi (UTF-16) en UTF-8 pour le reste du
     // programme.
     int utf8_len = WideCharToMultiByte(CP_UTF8, 0, wide_filename, -1,
-                                        filename, (int)filename_size,
-                                        NULL, NULL);
+        filename, (int)filename_size,
+        NULL, NULL);
     return utf8_len > 0;
 }
 
@@ -129,10 +129,10 @@ void reset_progress_bar(AppContext* ctx) {
 void toggle_password_visibility(AppContext* ctx) {
     ctx->pwdVisible = !ctx->pwdVisible;
     SendMessageA(ctx->hKeyEdit, EM_SETPASSWORDCHAR,
-                 ctx->pwdVisible ? 0 : '*', 0);
+        ctx->pwdVisible ? 0 : '*', 0);
     InvalidateRect(ctx->hKeyEdit, NULL, TRUE);
     SetWindowTextA(ctx->hTogglePwdBtn,
-                   ctx->pwdVisible ? "Masquer" : "Afficher");
+        ctx->pwdVisible ? "Masquer" : "Afficher");
 }
 
 /* ========================================
@@ -178,7 +178,7 @@ unsigned int get_memory_param(AppContext* ctx) {
  * Sauvegarde un fichier binaire
  */
 BOOL save_binary_file_secure(const char* filename, const unsigned char* data,
-                              size_t data_len, HWND hwnd) {
+    size_t data_len, HWND hwnd) {
     // V37.3 : fopen_utf8 (au lieu de fopen) - filename est en UTF-8,
     // produit par open_file_dialog() via GetSaveFileNameW.
     FILE* fp = fopen_utf8(filename, "wb");
@@ -188,15 +188,18 @@ BOOL save_binary_file_secure(const char* filename, const unsigned char* data,
 
     if (fwrite(data, 1, data_len, fp) != data_len) {
         show_error(hwnd, "Échec de l'écriture des données",
-                   "Erreur Sauvegarde");
+            "Erreur Sauvegarde");
         fclose(fp);
         return FALSE;
     }
 
+    // V38.0.1 : un échec de fclose (écriture différée) signale un fichier
+    // potentiellement tronqué ou corrompu — propager l'erreur à l'appelant.
     if (fclose(fp) != 0) {
         show_error(hwnd,
-                   "Avertissement : échec de la fermeture propre du fichier",
-                   "Avertissement");
+            "Échec de la fermeture propre du fichier — le fichier peut être incomplet",
+            "Erreur Sauvegarde");
+        return FALSE;
     }
 
     show_success(hwnd, "Fichier sauvegardé avec succès !", "Succès");
@@ -205,30 +208,45 @@ BOOL save_binary_file_secure(const char* filename, const unsigned char* data,
 
 /**
  * Sauvegarde le texte déchiffré
+ *
+ * V38.0.1 : remplacement de GetWindowTextLengthA/GetWindowTextA par
+ * secure_get_edit_text, qui passe par l'API Unicode (W) et convertit
+ * proprement en UTF-8. Cela élimine la corruption silencieuse des
+ * caractères non-ANSI (cyrillique, japonais, symboles mathématiques...)
+ * lors de l'exportation.
  */
 BOOL save_decrypted_text_file_secure(const char* filename, HWND hOutputEdit) {
-    int text_len = GetWindowTextLengthA(hOutputEdit);
-    if (text_len == 0) {
+    char* text = secure_get_edit_text(hOutputEdit, NULL,
+        "Erreur Sauvegarde", MAX_TEXT_LEN);
+    if (!text) {
         show_error(NULL, "Aucun texte à sauvegarder dans le champ Sortie",
-                   "Erreur Sauvegarde");
+            "Erreur Sauvegarde");
         return FALSE;
     }
 
-    char* text = secure_malloc(NULL, text_len + 1, TRUE);
-    if (!text) return FALSE;
+    size_t text_len = strlen(text);
+    if (text_len == 0) {
+        secure_free(text);
+        show_error(NULL, "Aucun texte à sauvegarder dans le champ Sortie",
+            "Erreur Sauvegarde");
+        return FALSE;
+    }
 
-    GetWindowTextA(hOutputEdit, text, text_len + 1);
-
-    // V37.3 : fopen_utf8 (au lieu de fopen) - filename est en UTF-8.
     FILE* fp = fopen_utf8(filename, "w");
     if (!fp) {
-        secure_clean_and_free(text, text_len + 1);
+        secure_clean_and_free(text, text_len);
         return FALSE;
     }
 
-    fprintf(fp, "%s", text);
-    fclose(fp);
-    secure_clean_and_free(text, text_len + 1);
+    size_t written = fwrite(text, 1, text_len, fp);
+    int close_result = fclose(fp);
+    secure_clean_and_free(text, text_len);
+
+    if (written != text_len || close_result != 0) {
+        show_error(NULL, "Échec de l'écriture complète du fichier texte",
+            "Erreur Sauvegarde");
+        return FALSE;
+    }
 
     show_success(NULL, "Texte déchiffré sauvegardé avec succès !", "Succès");
     return TRUE;
@@ -238,7 +256,7 @@ BOOL save_decrypted_text_file_secure(const char* filename, HWND hOutputEdit) {
  * Sauvegarde une image déchiffrée
  */
 BOOL save_image_file_secure(const char* filename, const unsigned char* data,
-                             size_t data_len, const char* extension, HWND hwnd) {
+    size_t data_len, const char* extension, HWND hwnd) {
     // V37.3 : fopen_utf8 (au lieu de fopen) - filename est en UTF-8.
     FILE* fp = fopen_utf8(filename, "wb");
     if (!check_file_operations(fp, "l'ouverture du fichier pour écriture", hwnd)) {
@@ -247,16 +265,22 @@ BOOL save_image_file_secure(const char* filename, const unsigned char* data,
 
     if (fwrite(data, 1, data_len, fp) != data_len) {
         show_error(hwnd, "Échec de l'écriture des données image",
-                   "Erreur Sauvegarde Image");
+            "Erreur Sauvegarde Image");
         fclose(fp);
         return FALSE;
     }
 
-    fclose(fp);
+    // V38.0.1 : vérifier le retour de fclose pour détecter une écriture
+    // différée échouée (disque plein, média retiré, etc.).
+    if (fclose(fp) != 0) {
+        show_error(hwnd, "Échec de la fermeture propre du fichier image",
+            "Erreur Sauvegarde Image");
+        return FALSE;
+    }
 
     char success_msg[512];
     snprintf(success_msg, sizeof(success_msg),
-             "Image %s sauvegardée avec succès !", extension);
+        "Image %s sauvegardée avec succès !", extension);
     show_success(hwnd, success_msg, "Succès");
     return TRUE;
 }
@@ -283,7 +307,7 @@ static char* dup_extension(const char* ext) {
  * Détecte le type de fichier à partir des données binaires
  */
 FileType detect_file_type(const unsigned char* data, size_t data_len,
-                           AppContext* ctx) {
+    AppContext* ctx) {
     if (!data || data_len == 0) {
         return FILE_TYPE_NONE;
     }
@@ -371,8 +395,8 @@ void reset_decrypt_state(AppContext* ctx) {
 void handle_clear(AppContext* ctx) {
     if (ctx->state.operation_in_progress) {
         show_error(NULL,
-                   "Une opération est en cours. Impossible d'effacer maintenant.",
-                   "Opération en cours");
+            "Une opération est en cours. Impossible d'effacer maintenant.",
+            "Opération en cours");
         return;
     }
 

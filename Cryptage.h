@@ -1,6 +1,6 @@
 /**
  * Cryptage.h
- * Header principal - Version 3800
+ * Header principal - Version 3801
  * (c) Bernard DÉMARET - 2026
  */
 
@@ -11,39 +11,37 @@
  * INCLUDES SYSTÈME
  * ======================================== */
 
-#include <winsock2.h>        // IMPORTANT : avant windows.h
-#include <windows.h>
-#include <commctrl.h>
+#include <openssl/evp.h>  // IMPORTANT : avant windows.h
+#include <openssl/kdf.h>
+#include <openssl/err.h>
+#include <openssl/rand.h>
+#include <openssl/core_names.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <stdint.h>
-#include <stdbool.h>
 #include <errno.h>
-#include <wchar.h>
+#include <time.h>
 
-#include <openssl/evp.h>
-#include <openssl/rand.h>
-#include <openssl/err.h>
-#include <openssl/kdf.h>
-#include <openssl/core_names.h>
-#include <openssl/params.h>
+#include <windows.h>
+#include <commctrl.h>
+#include <wingdi.h>
+#include <shlobj.h>
 
 /* ========================================
  * CONSTANTES CRYPTOGRAPHIQUES
  * ======================================== */
 
 // Tailles des éléments cryptographiques
-#define SALT_LEN 32          // Longueur du sel Argon2id
-#define NONCE_LEN 12         // Longueur du nonce AES-GCM
-#define TAG_LEN 16           // Longueur du tag d'authentification
-#define KEY_LEN 32           // Longueur de la clé AES-256
+#define SALT_LEN 32         // Longueur du sel Argon2id
+#define NONCE_LEN 12        // Longueur du nonce AES-GCM
+#define TAG_LEN 16          // Longueur du tag d'authentification
+#define KEY_LEN 32          // Longueur de la clé AES-256
 
 // Paramètres Argon2id
 #define DEFAULT_MEMORY_COST_KIB 16384  // 16 Mo par défaut
-#define TIME_COST 3                      // 3 itérations
-#define PARALLELISM 1                    // 1 thread
+#define TIME_COST 3                    // 3 itérations
+#define PARALLELISM 1                  // 1 thread
 
 // Compatibilité noms alternatifs (pour Cryptage_Core.c)
 #define ARGON2_T_COST TIME_COST
@@ -54,9 +52,9 @@
 #define AAD_LEN 24  // Version(4) + Reserved(16) + MemKiB(4)
 
 // Offsets dans l'AAD
-#define VERSION_OFFSET 0          // Offset de la version
-#define PLAINTEXT_LEN_OFFSET 16   // Offset de la longueur du plaintext
-#define MEMORY_OFFSET 20          // Offset du paramètre mémoire
+#define VERSION_OFFSET 0           // Offset de la version
+#define PLAINTEXT_LEN_OFFSET 16    // Offset de la longueur du plaintext
+#define MEMORY_OFFSET 20           // Offset du paramètre mémoire
 // Note : offsets 4-15 sont réservés (zéros), non utilisés à ce jour
 
 // Codes d'extension d'images (dans la zone réservée AAD)
@@ -113,7 +111,7 @@
  *   - Données chiffrées
  */
 
-#define CURRENT_VERSION 370 // Format inchangé V37 → V38
+#define CURRENT_VERSION 370  // Format inchangé V37 → V38
 #define VERSION CURRENT_VERSION
 
 /* ========================================
@@ -163,6 +161,14 @@ int decrypt_data(HWND hwnd, const unsigned char* ciphertext,
 /**
  * Vérifie la robustesse d'un mot de passe
  * Critères : 8-64 caractères, maj+min+chiffre+symbole
+ *
+ * NOTE V38.0.1 : cette fonction analyse les octets individuellement
+ * via les fonctions C standard isupper/islower/isdigit/ispunct, qui
+ * ne reconnaissent correctement que les caractères ASCII (0-127).
+ * Les mots de passe UTF-8 multi-octets (cyrillique, CJK, etc.) peuvent
+ * être faussement rejetés comme "faibles" même s'ils satisfont les
+ * critères sémantiques. L'usage de gestionnaires de mots de passe
+ * générant du ASCII (KeePass, Bitwarden, etc.) est recommandé.
  */
 BOOL is_password_strong(const char* password);
 

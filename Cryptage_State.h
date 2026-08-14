@@ -1,6 +1,6 @@
 /**
  * Cryptage_State.h
- * Structures d'état - Version 3800
+ * Structures d'état - Version 3801
  * (c) Bernard DÉMARET - 2026
  */
 
@@ -8,7 +8,7 @@
 #define CRYPTAGE_STATE_H
 
 #include <windows.h>
-#include <stdbool.h>
+#include <stddef.h>
 
 /* ========================================
  * ÉNUMÉRATIONS
@@ -18,19 +18,19 @@
  * Type de fichier importé
  */
 typedef enum {
-    FILE_TYPE_NONE,      // Aucun fichier
-    FILE_TYPE_TEXT,      // Fichier texte (.txt)
-    FILE_TYPE_IMAGE,     // Image (JPG, PNG, BMP)
-    FILE_TYPE_CRYPT      // Fichier crypté (.crypt)
+    FILE_TYPE_NONE,   // Aucun fichier
+    FILE_TYPE_TEXT,   // Fichier texte (.txt)
+    FILE_TYPE_IMAGE,  // Image (JPG, PNG, BMP)
+    FILE_TYPE_CRYPT   // Fichier crypté (.crypt)
 } FileType;
 
 /**
  * Type de contenu déchiffré
  */
 typedef enum {
-    CONTENT_TYPE_NONE,   // Aucun contenu
-    CONTENT_TYPE_TEXT,   // Texte déchiffré
-    CONTENT_TYPE_IMAGE   // Image déchiffrée
+    CONTENT_TYPE_NONE,  // Aucun contenu
+    CONTENT_TYPE_TEXT,  // Texte déchiffré
+    CONTENT_TYPE_IMAGE  // Image déchiffrée
 } ContentType;
 
 /* ========================================
@@ -42,31 +42,31 @@ typedef enum {
  */
 typedef struct {
     // État du fichier
-    BOOL file_imported;              // Un fichier a été importé
-    FileType file_type;              // Type du fichier importé
-    size_t file_size;                // Taille du fichier en octets
-    
+    BOOL file_imported;          // Un fichier a été importé
+    FileType file_type;          // Type du fichier importé
+    size_t file_size;            // Taille du fichier en octets
+
     // État des opérations
-    BOOL encrypted;                  // Données chiffrées disponibles
-    BOOL decrypted;                  // Données déchiffrées disponibles
-    ContentType decrypted_type;      // Type du contenu déchiffré
-    
+    BOOL encrypted;              // Données chiffrées disponibles
+    BOOL decrypted;              // Données déchiffrées disponibles
+    ContentType decrypted_type;  // Type du contenu déchiffré
+
     // Données en mémoire
-    unsigned char* loaded_data;      // Données brutes chargées
-    size_t loaded_len;               // Taille des données chargées
-    
+    unsigned char* loaded_data;  // Données brutes chargées
+    size_t loaded_len;           // Taille des données chargées
+
     // Extension originale (pour images)
-    char* original_extension;        // Extension du fichier d'origine
-    size_t original_extension_len;   // Longueur de l'extension
-    
+    char* original_extension;    // Extension du fichier d'origine
+    size_t original_extension_len; // Longueur de l'extension
+
     // Configuration crypto
-    unsigned int mem_kib;            // Mémoire Argon2id (en KiB)
-    unsigned int default_mem_kib;    // Valeur par défaut calculée
-    
+    unsigned int mem_kib;        // Mémoire Argon2id (en KiB)
+    unsigned int default_mem_kib; // Valeur par défaut calculée
+
     // État d'opération
-    BOOL operation_in_progress;      // Une opération crypto est en cours
-    BOOL decrypt_attempt_failed;     // Échec de déchiffrement
-    
+    BOOL operation_in_progress;  // Une opération crypto est en cours
+    BOOL decrypt_attempt_failed; // Échec de déchiffrement
+
 } SharedState;
 
 /**
@@ -75,14 +75,14 @@ typedef struct {
 typedef struct {
     // Fenêtre principale
     HWND hwnd;
-    
+
     // Handles des contrôles communs
-    HWND hKeyEdit;                   // Champ mot de passe
-    HWND hTogglePwdBtn;              // Bouton Afficher/Masquer
-    HWND hInputEdit;                 // Zone Entrée
-    HWND hOutputEdit;                // Zone Sortie
-    HWND hProgressBar;               // Barre de progression
-    
+    HWND hKeyEdit;        // Champ mot de passe
+    HWND hTogglePwdBtn;   // Bouton Afficher/Masquer
+    HWND hInputEdit;      // Zone Entrée
+    HWND hOutputEdit;     // Zone Sortie
+    HWND hProgressBar;    // Barre de progression
+
     // Handles des boutons
     HWND hImportBtn;
     HWND hEncryptBtn;
@@ -91,21 +91,21 @@ typedef struct {
     HWND hExportTextBtn;
     HWND hExportImageBtn;
     HWND hClearBtn;
-    
+
     // Panneau d'aide
-    HWND hHelpPanel;                 // Panneau "Prise en main rapide"
-    BOOL help_expanded;              // Panneau déplié/replié
-    
+    HWND hHelpPanel;      // Panneau "Prise en main rapide"
+    BOOL help_expanded;   // Panneau déplié/replié
+
     // Polices
-    HFONT hFont;                     // Police Courier New
-    HFONT hBoldFont;                 // Police grasse
-    
+    HFONT hFont;          // Police Courier New
+    HFONT hBoldFont;      // Police grasse
+
     // État partagé
     SharedState state;
-    
+
     // Visibilité du mot de passe
     BOOL pwdVisible;
-    
+
 } AppContext;
 
 /**
@@ -119,12 +119,12 @@ typedef struct {
     char* password;
     unsigned int mem_kib;
     BOOL is_encrypt;
-    
+
     // Résultats
     unsigned char* result;
     size_t result_len;
     int thread_result;
-    
+
     // État
     BOOL completed;
     HANDLE hThread;
