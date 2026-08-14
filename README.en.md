@@ -47,14 +47,14 @@
 **Command**:
 
 1. For a local, lightweight build, ideal for testing:
- ```bash
- gcc -finput-charset=UTF-8 -fexec-charset=CP1252 Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V38.0.0.exe -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
- ```
+```bash
+gcc -finput-charset=UTF-8 -fexec-charset=CP1252 Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V38.0.0.exe -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
+```
 
 2. To build the portable, highly robust, fully optimized version yourself - the one offered for download:
- ```bash
- gcc -static -static-libgcc -Os -s -flto -fno-ident -fno-asynchronous-unwind-tables -ffunction-sections -fdata-sections -fstack-protector-strong -finput-charset=UTF-8 -fexec-charset=CP1252 -D_FORTIFY_SOURCE=2 -DNDEBUG -I/c/msys64/mingw64/include -L/c/msys64/mingw64/lib Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V38.0.0.exe -Wl,--gc-sections -Wl,--build-id=none -lssl -lcrypto -lwinpthread -lws2_32 -lcrypt32 -lgdi32 -lcomctl32 -mwindows
- ```
+```bash
+gcc -static -static-libgcc -Os -s -flto -fno-ident -fno-asynchronous-unwind-tables -ffunction-sections -fdata-sections -fstack-protector-strong -finput-charset=UTF-8 -fexec-charset=CP1252 -D_FORTIFY_SOURCE=2 -DNDEBUG -I/c/msys64/mingw64/include -L/c/msys64/mingw64/lib Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V38.0.0.exe -Wl,--gc-sections -Wl,--build-id=none -lssl -lcrypto -lwinpthread -lws2_32 -lcrypt32 -lgdi32 -lcomctl32 -mwindows
+```
 **Note**: This command is designed for **MSYS2 MinGW-w64** with the default include paths (`/c/msys64/mingw64`). Adjust `-I` and `-L` to match your own installation if needed.
 
 ## 📖 Usage
@@ -64,12 +64,12 @@
 #### To encrypt a text file or image
 
 1. **Create a strong password** (16+ characters recommended)
-  * Use KeePass, Bitwarden, or another password manager
-  * ⚠️ **NEVER** send the password together with the encrypted file
+   * Use KeePass, Bitwarden, or another password manager
+   * ⚠️ **NEVER** send the password together with the encrypted file
 2. **IMPORT** → **ENCRYPT** → **SAVE**
-  * Click "IMPORTER" and select your file
-  * Click "CHIFFRER"
-  * Click "SAUVEGARDER" to create the .crypt file
+   * Click "IMPORTER" and select your file
+   * Click "CHIFFRER"
+   * Click "SAUVEGARDER" to create the .crypt file
 
 #### To encrypt text entered directly
 
@@ -82,9 +82,9 @@
 
 1. **Enter the password** used during encryption
 2. **IMPORT** → **DECRYPT** → **EXPORT**
-  * Click "IMPORTER" and select the .crypt file
-  * Click "DÉCHIFFRER"
-  * Click "EXPORTER" (Text or Image depending on content)
+   * Click "IMPORTER" and select the .crypt file
+   * Click "DÉCHIFFRER"
+   * Click "EXPORTER" (Text or Image depending on content)
 
 #### To decrypt pasted hexadecimal text
 
@@ -162,6 +162,8 @@ Argon2id memory (4): in KiB
 ### Minor fixes
 
 * 🔧 Improved font charset handling (`DEFAULT_CHARSET` instead of `ANSI_CHARSET`)
+* 🔧 **Post-release corrections** (applied to `Cryptage_UI.c` and the online `Cryptage_V38.0.0.exe` executable without a version number change):
+  * Export after decrypting pasted hexadecimal text: fixed a regression where the EXPORT buttons remained inactive after a successful decryption from hexadecimal pasted into the "Entrée" area (email/messaging workflow). The plaintext was correctly displayed in "Sortie", but the absence of an imported file blocked the export. This behavior is now functional: **paste hex → DECRYPT → EXPORT** works as expected.
 
 ## 📊 Version history
 
@@ -193,6 +195,7 @@ Argon2id memory (4): in KiB
 ## 🐛 Known issues
 
 * The display of Cyrillic or Japanese characters in the interface text areas may be limited by Windows ANSI controls. Encryption/decryption of these characters works correctly internally (via UTF-8), but their visual display may be replaced by `?`. Unicode file names are fully supported.
+* **Memory security — editable "Entrée" area**: since V38.0.0, the "Entrée" area is editable (free typing, modification of imported text). Windows multiline `Edit` controls maintain an internal undo history (`Ctrl+Z`) managed by the operating system, outside the program's control. Transient copies of plaintext may therefore persist temporarily in process memory, not wiped by Cryptage's `secure_malloc`/`secure_free` mechanism. This phenomenon is inherent to Win32 controls and does not constitute a vulnerability specific to Cryptage; it is noted here for transparency.
 
 Report bugs via [Issues](https://github.com/BernardBourbaki/Cryptage/issues).
 

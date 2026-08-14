@@ -47,14 +47,14 @@
 **Commande** :
 
 1. Si vous voulez une version locale, légère, idéale pour des tests :
- ```bash
- gcc -finput-charset=UTF-8 -fexec-charset=CP1252 Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V38.0.0.exe -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
- ```
+```bash
+gcc -finput-charset=UTF-8 -fexec-charset=CP1252 Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V38.0.0.exe -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
+```
 
 2. Si vous voulez compiler vous-même la version portable, très robuste et optimisée au maximum, qui est proposée en téléchargement :
- ```bash
- gcc -static -static-libgcc -Os -s -flto -fno-ident -fno-asynchronous-unwind-tables -ffunction-sections -fdata-sections -fstack-protector-strong -finput-charset=UTF-8 -fexec-charset=CP1252 -D_FORTIFY_SOURCE=2 -DNDEBUG -I/c/msys64/mingw64/include -L/c/msys64/mingw64/lib Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V38.0.0.exe -Wl,--gc-sections -Wl,--build-id=none -lssl -lcrypto -lwinpthread -lws2_32 -lcrypt32 -lgdi32 -lcomctl32 -mwindows
- ```
+```bash
+gcc -static -static-libgcc -Os -s -flto -fno-ident -fno-asynchronous-unwind-tables -ffunction-sections -fdata-sections -fstack-protector-strong -finput-charset=UTF-8 -fexec-charset=CP1252 -D_FORTIFY_SOURCE=2 -DNDEBUG -I/c/msys64/mingw64/include -L/c/msys64/mingw64/lib Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V38.0.0.exe -Wl,--gc-sections -Wl,--build-id=none -lssl -lcrypto -lwinpthread -lws2_32 -lcrypt32 -lgdi32 -lcomctl32 -mwindows
+```
 **Note** : Cette commande est conçue pour **MSYS2 MinGW-w64** avec les chemins d'inclusion par défaut (`/c/msys64/mingw64`). Adaptez `-I` et `-L` à votre propre installation si nécessaire.
 
 ## 📖 Utilisation
@@ -64,12 +64,12 @@
 #### Pour chiffrer un fichier texte ou image
 
 1. **Créez un mot de passe fort** (16+ caractères recommandés)
-  * Utilisez KeePass, Bitwarden ou un autre gestionnaire
-  * ⚠️ Ne transmettez **JAMAIS** le mot de passe avec le fichier chiffré
+   * Utilisez KeePass, Bitwarden ou un autre gestionnaire
+   * ⚠️ Ne transmettez **JAMAIS** le mot de passe avec le fichier chiffré
 2. **IMPORTER** → **CHIFFRER** → **SAUVEGARDER**
-  * Cliquez sur "IMPORTER" et sélectionnez votre fichier
-  * Cliquez sur "CHIFFRER"
-  * Cliquez sur "SAUVEGARDER" pour créer le fichier .crypt
+   * Cliquez sur "IMPORTER" et sélectionnez votre fichier
+   * Cliquez sur "CHIFFRER"
+   * Cliquez sur "SAUVEGARDER" pour créer le fichier .crypt
 
 #### Pour chiffrer du texte saisi directement
 
@@ -82,9 +82,9 @@
 
 1. **Entrez le mot de passe** utilisé lors du chiffrement
 2. **IMPORTER** → **DÉCHIFFRER** → **EXPORTER**
-  * Cliquez sur "IMPORTER" et sélectionnez le fichier .crypt
-  * Cliquez sur "DÉCHIFFRER"
-  * Cliquez sur "EXPORTER" (Texte ou Image selon le contenu)
+   * Cliquez sur "IMPORTER" et sélectionnez le fichier .crypt
+   * Cliquez sur "DÉCHIFFRER"
+   * Cliquez sur "EXPORTER" (Texte ou Image selon le contenu)
 
 #### Pour déchiffrer un texte hexadécimal collé
 
@@ -162,6 +162,8 @@ Mémoire Argon2id (4) : en KiB
 ### Corrections mineures
 
 * 🔧 Amélioration de la gestion du jeu de caractères de la police (`DEFAULT_CHARSET` au lieu de `ANSI_CHARSET`)
+* 🔧 **Corrections post-release** (appliquées au fichier `Cryptage_UI.c` et à l'exécutable `Cryptage_V38.0.0.exe` en ligne sans changement de numéro de version) :
+  * Exportation après déchiffrement d'un texte hexadécimal collé : correction d'une régression où les boutons EXPORTER restaient inactifs après un déchiffrement réussi à partir d'un hexadécimal collé dans la zone "Entrée" (flux mail/messagerie). Le texte clair était correctement affiché dans "Sortie", mais l'absence de fichier importé bloquait l'exportation. Ce comportement est désormais fonctionnel : **coller l'hex → DÉCHIFFRER → EXPORTER** fonctionne comme attendu.
 
 ## 📊 Historique des versions
 
@@ -193,6 +195,7 @@ Mémoire Argon2id (4) : en KiB
 ## 🐛 Problèmes connus
 
 * L'affichage de caractères cyrilliques ou japonais dans les zones de texte de l'interface peut être limité par les contrôles ANSI de Windows. Le chiffrement/déchiffrement de ces caractères fonctionne correctement en interne (via UTF-8), mais leur affichage visuel peut être remplacé par des `?`. Les noms de fichiers Unicode sont pleinement supportés.
+* **Sécurité mémoire — zone « Entrée » éditable** : depuis la V38.0.0, la zone « Entrée » est éditable (saisie libre, modification d'un texte importé). Les contrôles `Edit` multilignes de Windows conservent un historique d'annulation interne (`Ctrl+Z`) géré par le système d'exploitation, hors du contrôle du programme. Des copies transitoires du texte en clair peuvent donc persister temporairement en mémoire process, non effacées par le mécanisme `secure_malloc`/`secure_free` de Cryptage. Ce phénomène est inhérent aux contrôles Win32 et ne constitue pas une faille propre à Cryptage ; il est signalé ici par transparence.
 
 Signalez les bugs via [Issues](https://github.com/BernardBourbaki/Cryptage/issues).
 
