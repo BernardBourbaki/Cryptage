@@ -608,6 +608,7 @@ void handle_decrypt(HWND hwnd, AppContext* ctx) {
             secure_free(bin_data);
             ctx->state.decrypt_attempt_failed = TRUE;
             return;
+        }
 
         // V38.0.3 : plafond de taille sur le chemin hex collé
         if (bin_len > MAX_CRYPT_SIZE) {
@@ -618,8 +619,7 @@ void handle_decrypt(HWND hwnd, AppContext* ctx) {
             ctx->state.decrypt_attempt_failed = TRUE;
             return;
         }
-        }
-
+        
         uint32_t version = read_uint32_le(bin_data);
         if (version != CURRENT_VERSION) {
             show_error(hwnd, "Format de fichier crypté non reconnu",
