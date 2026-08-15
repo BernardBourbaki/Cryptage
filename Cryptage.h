@@ -1,6 +1,6 @@
 /**
  * Cryptage.h
- * Header principal - Version 3802
+ * Header principal - Version 3803
  * (c) Bernard DÉMARET - 2026
  */
 
@@ -201,7 +201,7 @@ void secure_mem_cleanup(void);
 /**
  * Alloue de la mémoire sécurisée (non swappable)
  */
-void* secure_malloc(HWND hwnd, size_t size, BOOL zero_on_free);
+void* secure_malloc(HWND hwnd, size_t size, BOOL force_lock);
 
 /**
  * Libère de la mémoire sécurisée
@@ -232,12 +232,12 @@ void secure_set_edit_text(HWND hEdit, const char* text, size_t text_len);
 /**
  * Convertit des données binaires en hexadécimal
  */
-char* bin_to_hex(const unsigned char* bin, size_t bin_len);
+char* bin_to_hex(const unsigned char* bin, size_t bin_len, BOOL force_lock);
 
 /**
  * Convertit une chaîne hexadécimale en binaire
  */
-int hex_to_bin(const char* hex, unsigned char** bin, size_t* bin_len);
+int hex_to_bin(const char* hex, unsigned char** bin, size_t* bin_len, BOOL force_lock);
 
 /**
  * Vérifie si une chaîne est hexadécimale valide
@@ -349,7 +349,6 @@ void update_buttons(AppContext* ctx);
 typedef struct SecureMemEntry {
     void* ptr;
     size_t size;
-    BOOL zero_on_free;
     struct SecureMemEntry* next;
 } SecureMemEntry;
 

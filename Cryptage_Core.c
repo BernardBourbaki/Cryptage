@@ -1,7 +1,7 @@
 /**
  * Cryptage_Core.c
  * Algorithmes cryptographiques et fonctions de base
- * Version 3802
+ * Version 3803
  * (c) Bernard DÉMARET - 2026
  */
 
@@ -255,18 +255,18 @@ void secure_set_edit_text(HWND hEdit, const char* text, size_t len) {
     UpdateWindow(hEdit);
 }
 
-char* bin_to_hex(const unsigned char* data, size_t len) {
+char* bin_to_hex(const unsigned char* data, size_t len, BOOL force_lock) {
     static const char hex[] = "0123456789ABCDEF";
     const size_t chars_per_line = HEX_COLUMNS * 3;
     const size_t num_lines = (len + HEX_COLUMNS - 1) / HEX_COLUMNS;
     const size_t buffer_size = len * 3 + num_lines * 2 + 1;
 
-    // V38.0.2 : force_lock=FALSE car le buffer hex peut atteindre ~31 Mo
-    // pour une image de 10 Mo, ce qui dépasserait souvent le quota de
-    // verrouillage. Le buffer est effacé via secure_free() à sa libération.
-    char* buffer = secure_malloc(NULL, buffer_size, FALSE);
-    if (!buffer) return NULL;
-
+    /* V38.0.3 : force_lock est choisi par l'appelant selon la sensibilité
+     * des données (voir table des sites d'appel dans Cryptage_UI.c).
+     * TRUE pour le clair (image importée, image déchiffrée) ;
+     * FALSE pour le chiffré (buffer hex jusqu'à ~31 Mo, où VirtualLock
+     * échoue souvent sur les systèmes à quota limité). */
+    char* buffer = secure_malloc(NULL, buffer_size, force_lock);
     size_t pos = 0;
     for (size_t i = 0; i < len; i++) {
         buffer[pos++] = hex[data[i] >> 4];
@@ -295,7 +295,7 @@ int is_valid_hex(const char* hex) {
     return 1;
 }
 
-int hex_to_bin(const char* input, unsigned char** output, size_t* out_len) {
+int hex_to_bin(const char* input, unsigned char** output, size_t* out_len, BOOL force_lock) {
     if (!input || !output || !out_len) return -1;
 
     size_t hex_digits = 0;
@@ -320,7 +320,7 @@ int hex_to_bin(const char* input, unsigned char** output, size_t* out_len) {
     }
 
     size_t bytes = hex_digits / 2;
-    unsigned char* buf = secure_malloc(NULL, bytes, FALSE);
+    unsigned char* buf = secure_malloc(NULL, bytes, force_lock);
     if (!buf) return -1;
 
     size_t idx = 0;

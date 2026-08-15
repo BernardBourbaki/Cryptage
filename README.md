@@ -1,8 +1,8 @@
-# Cryptage V38.0.2
+# Cryptage V38.0.3
 
 **Chiffrement sécurisé de fichiers texte et images**
 
-[![Version](https://img.shields.io/badge/version-38.0.2-blue.svg)](https://github.com/BernardBourbaki/Cryptage/releases)
+[![Version](https://img.shields.io/badge/version-38.0.3-blue.svg)](https://github.com/BernardBourbaki/Cryptage/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![OpenSSL](https://img.shields.io/badge/OpenSSL-3.2+-red.svg)](https://www.openssl.org/)
 
@@ -17,7 +17,7 @@
 
 ### Compatibilité des versions
 
-* **V37 / V37.1 / V37.2 / V37.2.1 / V37.3 / V37.3.1 / V38.0.0 / V38.0.1 / V38.0.2** : Déchiffre **UNIQUEMENT** les fichiers .crypt créés avec V37+
+* **V37 / V37.1 / V37.2 / V37.2.1 / V37.3 / V37.3.1 / V38.0.0 / V38.0.1 / V38.0.2 / V38.0.3** : Déchiffre **UNIQUEMENT** les fichiers .crypt créés avec V37+
 * **V31-V36** : Utilisez [Cryptage V36.1](https://github.com/BernardBourbaki/Cryptage/releases/tag/v36.1) pour déchiffrer les anciens fichiers
 
 ### Limites
@@ -33,7 +33,7 @@
 
 ### Windows (Exécutable)
 
-1. Téléchargez Cryptage_V38.0.2.exe depuis [Releases](https://github.com/BernardBourbaki/Cryptage/releases/latest)
+1. Téléchargez Cryptage_V38.0.3.exe depuis [Releases](https://github.com/BernardBourbaki/Cryptage/releases/latest)
 2. Vérifiez le checksum SHA256 (voir checksums.txt)
 3. Lancez l'exécutable (pas d'installation requise)
 
@@ -48,12 +48,12 @@
 
 1. Si vous voulez une version locale, légère, idéale pour des tests :
 ```bash
-gcc -finput-charset=UTF-8 -fexec-charset=CP1252 Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V38.0.2.exe -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
+gcc -finput-charset=UTF-8 -fexec-charset=CP1252 Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V38.0.3.exe -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
 ```
 
 2. Si vous voulez compiler vous-même la version portable, très robuste et optimisée au maximum, qui est proposée en téléchargement :
 ```bash
-gcc -static -static-libgcc -Os -s -flto -fno-ident -fno-asynchronous-unwind-tables -ffunction-sections -fdata-sections -fstack-protector-strong -finput-charset=UTF-8 -fexec-charset=CP1252 -D_FORTIFY_SOURCE=2 -DNDEBUG -I/c/msys64/mingw64/include -L/c/msys64/mingw64/lib Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V38.0.2.exe -Wl,--gc-sections -Wl,--build-id=none -lssl -lcrypto -lwinpthread -lws2_32 -lcrypt32 -lgdi32 -lcomctl32 -mwindows
+gcc -static -static-libgcc -Os -s -flto -fno-ident -fno-asynchronous-unwind-tables -ffunction-sections -fdata-sections -fstack-protector-strong -finput-charset=UTF-8 -fexec-charset=CP1252 -D_FORTIFY_SOURCE=2 -DNDEBUG -I/c/msys64/mingw64/include -L/c/msys64/mingw64/lib Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V38.0.3.exe -Wl,--gc-sections -Wl,--build-id=none -lssl -lcrypto -lwinpthread -lws2_32 -lcrypt32 -lgdi32 -lcomctl32 -mwindows
 ```
 **Note** : Cette commande est conçue pour **MSYS2 MinGW-w64** avec les chemins d'inclusion par défaut (`/c/msys64/mingw64`). Adaptez `-I` et `-L` à votre propre installation si nécessaire.
 
@@ -110,7 +110,7 @@ Le panneau d'aide rapide, entièrement visible depuis la V37.1, reste accessible
 * Utilisez des mots de passe de 16 caractères minimum
 * Conservez vos mots de passe dans un gestionnaire sécurisé
 * Testez le déchiffrement **avant** de supprimer l'original
-* Gardez plusieurs copies du logiciel Cryptage_V38.0.2.exe
+* Gardez plusieurs copies du logiciel Cryptage_V38.0.3.exe
 
 ❌ **À NE PAS FAIRE** :
 
@@ -145,15 +145,23 @@ Mémoire Argon2id (4) : en KiB
 [CIPHERTEXT - variable]
 ```
 
+## 📊 Nouveautés V38.0.3 (15 août 2026)
+
+### Corrections de robustesse et cohérence d'état
+
+* 🐛 **Verrouillage mémoire des buffers hexadécimaux** : `bin_to_hex` et `hex_to_bin` utilisent désormais un paramètre `force_lock` explicite choisi par l'appelant selon la sensibilité des données. Les buffers contenant du clair (image importée, image déchiffrée) sont verrouillés (`TRUE`) ; les buffers de chiffré (`FALSE`) conservent le comportement existant avec effacement via `secure_free()`.
+* 🐛 **Augmentation du working set** : `SetProcessWorkingSetSize(48 Mo, 96 Mo)` au démarrage améliore le taux de succès de `VirtualLock` sur les buffers de conversion. Échec silencieux accepté si le privilège utilisateur est insuffisant.
+* 🐛 **Nettoyage du paramètre zero_on_free** : suppression du paramètre `zero_on_free` dans `secure_malloc` et `SecureMemEntry`. Le comportement réel (effacement inconditionnel `OPENSSL_cleanse` + `VirtualLock` optionnel) est désormais explicite.
+* 🐛 **Désactivation visuelle des boutons pendant opération** : `update_buttons()` tient compte de `operation_in_progress` pour griser l'ensemble des 7 boutons pendant le chiffrement/déchiffrement (Argon2id compris).
+* 🐛 **Protection contre le double-free à la fermeture** : remise à `NULL` de `loaded_data`, `loaded_len`, `original_extension` et `original_extension_len` dans `WM_DESTROY` après `secure_free()`, rendant le nettoyage ultérieur dans `WinMain` idempotent.
+* 🐛 **Limite de taille sur hexadécimal collé** : le déchiffrement depuis la zone « Entrée » applique désormais `MAX_CRYPT_SIZE` (10 Mo + 84 octets d'en-tête), identique au chemin fichier `.crypt`.
+
+### Compatibilité
+
+* 🔧 **Format .crypt inchangé** : compatibilité totale V37.3.1 ↔ V38.0.3
+* 🔧 Compilation : MSVC / MinGW-w64 avec OpenSSL 3.2+
+
 ## 📊 Nouveautés V38.0.2 (14 août 2026)
-
-### Corrections de cohérence d'état et de code mort
-
-* 🐛 **Nettoyage du paramètre mem_kib mort** : suppression des deux lignes inutilisées dans `handle_decrypt` (`Cryptage_UI.c`). Le paramètre `mem_kib` était lu depuis `ctx->state` puis écrasé immédiatement par la valeur stockée dans l'en-tête du fichier `.crypt` dans `decrypt_data`. Le champ reste pleinement utilisé par `handle_encrypt`.
-* 🐛 **Réinitialisation d'état après chiffrement** : après un chiffrement réussi, les indicateurs `decrypted` et `decrypted_type` sont correctement remis à zéro, évitant une incohérence visuelle sur l'activation des boutons EXPORTER.
-* 🐛 **Réinitialisation d'état après déchiffrement** : après un déchiffrement réussi, l'indicateur `encrypted` est correctement remis à zéro, évitant une incohérence visuelle sur l'activation du bouton SAUVEGARDER.
-* 📝 **Documentation du verrouillage mémoire** : ajout d'un commentaire explicite dans `bin_to_hex` (`Cryptage_Core.c`) justifiant le choix `force_lock=FALSE` pour les gros buffers hexadécimaux (~31 Mo pour une image de 10 Mo).
-
 ## 📊 Nouveautés V38.0.1 (14 août 2026)
 
 ### Corrections de robustesse et de sécurité mémoire

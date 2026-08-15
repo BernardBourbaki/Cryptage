@@ -1,6 +1,6 @@
 /**
  * Cryptage_Main.c
- * Point d'entrée principal - Version 3802
+ * Point d'entrée principal - Version 3803
  * (c) Bernard DÉMARET - 2026
  */
 
@@ -77,7 +77,7 @@ HWND create_main_window(HINSTANCE hInstance, int nCmdShow) {
     HWND hwnd = CreateWindowExA(
         0,
         "CryptoMainClass",
-        "Cryptage V38.0.2 (c) Bernard DÉMARET",
+        "Cryptage V38.0.3 (c) Bernard DÉMARET",
         WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, CW_USEDEFAULT,
         900, 800,
@@ -132,6 +132,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     RESET_SHARED_STATE(&g_AppContext.state);
 
     // Initialiser le système de mémoire sécurisée
+    // V38.0.3 : augmenter la marge du working set pour améliorer le succès
+    // de VirtualLock sur les buffers de conversion hexadécimal.
+    // Échec silencieux accepté (privilège utilisateur insuffisant).
+    SIZE_T min_ws = 48 * 1024 * 1024;   // 48 Mo
+    SIZE_T max_ws = 96 * 1024 * 1024;  // 96 Mo
+    SetProcessWorkingSetSize(GetCurrentProcess(), min_ws, max_ws);
+
     secure_mem_init();
 
     // Créer la fenêtre principale

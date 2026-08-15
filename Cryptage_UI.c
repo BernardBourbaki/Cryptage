@@ -1,6 +1,6 @@
 /**
  * Cryptage_UI.c
- * Interface utilisateur unique - Version 3802
+ * Interface utilisateur unique - Version 3803
  * (c) Bernard DÉMARET - 2026
  */
 
@@ -215,6 +215,18 @@ void create_ui_controls(HWND hwnd, HINSTANCE hInstance, AppContext* ctx) {
  * ======================================== */
 
 void update_buttons(AppContext* ctx) {
+    // V38.0.3 : désactiver tous les boutons pendant une opération crypto
+    if (ctx->state.operation_in_progress) {
+        SET_BUTTON_STATE(ctx->hImportBtn, FALSE);
+        SET_BUTTON_STATE(ctx->hEncryptBtn, FALSE);
+        SET_BUTTON_STATE(ctx->hSaveBtn, FALSE);
+        SET_BUTTON_STATE(ctx->hDecryptBtn, FALSE);
+        SET_BUTTON_STATE(ctx->hExportTextBtn, FALSE);
+        SET_BUTTON_STATE(ctx->hExportImageBtn, FALSE);
+        SET_BUTTON_STATE(ctx->hClearBtn, FALSE);
+        return;
+    }
+
     // IMPORTER et EFFACER : toujours actifs
     SET_BUTTON_STATE(ctx->hImportBtn, TRUE);
     SET_BUTTON_STATE(ctx->hClearBtn, TRUE);
@@ -363,7 +375,7 @@ void handle_import(HWND hwnd, AppContext* ctx) {
         // V38 : zone Entrée éditable pour le texte
         SendMessageA(ctx->hInputEdit, EM_SETREADONLY, FALSE, 0);
     } else {
-        char* hex = bin_to_hex(data, data_len);
+        char* hex = bin_to_hex(data, data_len, TRUE);
         if (hex) {
             secure_set_edit_text(ctx->hInputEdit, hex, strlen(hex));
             secure_free(hex);
@@ -473,6 +485,7 @@ void handle_encrypt(HWND hwnd, AppContext* ctx) {
     op->is_encrypt = TRUE;
 
     ctx->state.operation_in_progress = TRUE;
+    update_buttons(ctx);          // V38.0.3
     update_progress_bar(hwnd, ctx, 0);
 
     op->hThread = CreateThread(NULL, 0, encrypt_thread, op, 0, NULL);
@@ -515,7 +528,7 @@ void handle_save(HWND hwnd, AppContext* ctx) {
 
     unsigned char* bin_data = NULL;
     size_t bin_len;
-    if (hex_to_bin(hex, &bin_data, &bin_len) != 0) {
+    if (hex_to_bin(hex, &bin_data, &bin_len, FALSE) != 0) {
         show_error(hwnd, "Données hexadécimales invalides", "Erreur");
         secure_free(hex);
         return;
@@ -581,7 +594,7 @@ void handle_decrypt(HWND hwnd, AppContext* ctx) {
 
         unsigned char* bin_data = NULL;
         size_t bin_len;
-        if (hex_to_bin(hex, &bin_data, &bin_len) != 0) {
+        if (hex_to_bin(hex, &bin_data, &bin_len, FALSE) != 0) {
             show_error(hwnd, "Conversion hexadécimale échouée", "Erreur Déchiffrement");
             secure_free(hex);
             ctx->state.decrypt_attempt_failed = TRUE;
@@ -595,6 +608,16 @@ void handle_decrypt(HWND hwnd, AppContext* ctx) {
             secure_free(bin_data);
             ctx->state.decrypt_attempt_failed = TRUE;
             return;
+
+        // V38.0.3 : plafond de taille sur le chemin hex collé
+        if (bin_len > MAX_CRYPT_SIZE) {
+            show_error(hwnd,
+                "Données trop volumineuses : limite de 10 Mo (+ 84 octets d'en-tête) dépassée.",
+                "Erreur Déchiffrement");
+            secure_free(bin_data);
+            ctx->state.decrypt_attempt_failed = TRUE;
+            return;
+        }
         }
 
         uint32_t version = read_uint32_le(bin_data);
@@ -664,6 +687,7 @@ void handle_decrypt(HWND hwnd, AppContext* ctx) {
     op->is_encrypt = FALSE;
 
     ctx->state.operation_in_progress = TRUE;
+    update_buttons(ctx);          // V38.0.3
     update_progress_bar(hwnd, ctx, 0);
 
     op->hThread = CreateThread(NULL, 0, decrypt_thread, op, 0, NULL);
@@ -733,7 +757,7 @@ void handle_export_image(HWND hwnd, AppContext* ctx) {
 
     unsigned char* data = NULL;
     size_t data_len;
-    if (hex_to_bin(hex, &data, &data_len) != 0) {
+    if (hex_to_bin(hex, &data, &data_len, TRUE) != 0) {
         show_error(hwnd, "Conversion hex -> binaire échouée", "Erreur");
         secure_free(hex);
         return;
@@ -818,7 +842,7 @@ void handle_operation_complete(HWND hwnd, AppContext* ctx,
 
     if (op->is_encrypt) {
         if (wParam == 0 && op->result) {
-            char* hex = bin_to_hex(op->result, op->result_len);
+            char* hex = bin_to_hex(op->result, op->result_len, FALSE);
             if (hex) {
                 secure_set_edit_text(ctx->hOutputEdit, hex, strlen(hex));
                 secure_free(hex);
@@ -850,7 +874,7 @@ void handle_operation_complete(HWND hwnd, AppContext* ctx,
                     (char*)op->result, op->result_len);
                 ctx->state.decrypted_type = CONTENT_TYPE_TEXT;
             } else {
-                char* hex = bin_to_hex(op->result, op->result_len);
+                char* hex = bin_to_hex(op->result, op->result_len, TRUE);
                 if (hex) {
                     secure_set_edit_text(ctx->hOutputEdit, hex, strlen(hex));
                     secure_free(hex);
@@ -1014,9 +1038,16 @@ LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 
     case WM_DESTROY:
         destroy_fonts(ctx);
-        if (ctx->state.loaded_data) secure_free(ctx->state.loaded_data);
-        if (ctx->state.original_extension)
+        if (ctx->state.loaded_data) {
+            secure_free(ctx->state.loaded_data);
+            ctx->state.loaded_data = NULL;          // V38.0.3
+            ctx->state.loaded_len = 0;               // V38.0.3
+        }
+        if (ctx->state.original_extension) {
             secure_free(ctx->state.original_extension);
+            ctx->state.original_extension = NULL;    // V38.0.3
+            ctx->state.original_extension_len = 0;     // V38.0.3
+        }
         secure_mem_cleanup();
         PostQuitMessage(0);
         break;
