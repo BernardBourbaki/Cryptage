@@ -493,6 +493,7 @@ void handle_encrypt(HWND hwnd, AppContext* ctx) {
         show_error(hwnd, "Échec création thread", "Erreur");
         cleanup_crypto_operation(op);
         ctx->state.operation_in_progress = FALSE;
+        update_buttons(ctx);
         return;
     }
 
@@ -696,6 +697,7 @@ void handle_decrypt(HWND hwnd, AppContext* ctx) {
         cleanup_crypto_operation(op);
         ctx->state.operation_in_progress = FALSE;
         ctx->state.decrypt_attempt_failed = TRUE;
+        update_buttons(ctx);
         return;
     }
 
@@ -990,6 +992,11 @@ LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
         switch (LOWORD(wParam)) {
         case ID_INPUT_EDIT:
             if (HIWORD(wParam) == EN_CHANGE) {
+                if (ctx->state.encrypted &&
+                    ctx->state.file_type != FILE_TYPE_IMAGE &&
+                    ctx->state.file_type != FILE_TYPE_CRYPT) {
+                    ctx->state.encrypted = FALSE;
+                }
                 update_buttons(ctx);
             }
             break;
