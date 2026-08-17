@@ -267,6 +267,7 @@ char* bin_to_hex(const unsigned char* data, size_t len, BOOL force_lock) {
      * FALSE pour le chiffré (buffer hex jusqu'à ~31 Mo, où VirtualLock
      * échoue souvent sur les systèmes à quota limité). */
     char* buffer = secure_malloc(NULL, buffer_size, force_lock);
+    if (!buffer) return NULL;
     size_t pos = 0;
     for (size_t i = 0; i < len; i++) {
         buffer[pos++] = hex[data[i] >> 4];
