@@ -1,6 +1,6 @@
 /**
  * Cryptage_Main.c
- * Point d'entrée principal - Version 3803
+ * Point d'entrée principal - Version 3804
  * (c) Bernard DÉMARET - 2026
  */
 
@@ -77,10 +77,10 @@ HWND create_main_window(HINSTANCE hInstance, int nCmdShow) {
     HWND hwnd = CreateWindowExA(
         0,
         "CryptoMainClass",
-        "Cryptage V38.0.3 (c) Bernard DÉMARET",
+        "Cryptage V38.0.4 (c) Bernard DÉMARET",
         WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, CW_USEDEFAULT,
-        900, 800,
+        900, 830,
         NULL, NULL, hInstance, &g_AppContext
     );
 
