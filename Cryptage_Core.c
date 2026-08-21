@@ -482,9 +482,7 @@ BOOL is_image_file(const char* filename) {
     }
 
     return (strcmp(ext_lower, ".jpg") == 0 || strcmp(ext_lower, ".jpeg") == 0 ||
-            strcmp(ext_lower, ".png") == 0 || strcmp(ext_lower, ".bmp") == 0 ||
-            strcmp(ext_lower, ".JPG") == 0 || strcmp(ext_lower, ".JPEG") == 0 ||
-            strcmp(ext_lower, ".PNG") == 0 || strcmp(ext_lower, ".BMP") == 0);
+        strcmp(ext_lower, ".png") == 0 || strcmp(ext_lower, ".bmp") == 0);
 }
 
 BOOL validate_image_format(const unsigned char* data, size_t data_len, const char* expected_ext) {
