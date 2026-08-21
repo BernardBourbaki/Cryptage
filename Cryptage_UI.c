@@ -1,6 +1,6 @@
 /**
  * Cryptage_UI.c
- * Interface utilisateur unique - Version 3804
+ * Interface utilisateur unique - Version 3805
  * (c) Bernard DÉMARET - 2026
  */
 
@@ -845,10 +845,20 @@ void handle_operation_complete(HWND hwnd, AppContext* ctx,
     if (op->is_encrypt) {
         if (wParam == 0 && op->result) {
             char* hex = bin_to_hex(op->result, op->result_len, FALSE);
-            if (hex) {
-                secure_set_edit_text(ctx->hOutputEdit, hex, strlen(hex));
-                secure_free(hex);
+            if (!hex) {
+                SetWindowTextA(ctx->hOutputEdit, "");
+                ctx->state.encrypted = FALSE;
+                ctx->state.decrypted = FALSE;
+                ctx->state.decrypted_type = CONTENT_TYPE_NONE;
+                show_error(hwnd,
+                    "Échec de la préparation de la sortie chiffrée.",
+                    "Erreur Chiffrement");
+                cleanup_crypto_operation(op);
+                update_buttons(ctx);
+                return;
             }
+            secure_set_edit_text(ctx->hOutputEdit, hex, strlen(hex));
+            secure_free(hex);
             ctx->state.encrypted = TRUE;
             // V38.0.2 : réinitialiser l'état decrypted après un chiffrement réussi
             ctx->state.decrypted = FALSE;
@@ -877,10 +887,21 @@ void handle_operation_complete(HWND hwnd, AppContext* ctx,
                 ctx->state.decrypted_type = CONTENT_TYPE_TEXT;
             } else {
                 char* hex = bin_to_hex(op->result, op->result_len, TRUE);
-                if (hex) {
-                    secure_set_edit_text(ctx->hOutputEdit, hex, strlen(hex));
-                    secure_free(hex);
+                if (!hex) {
+                    SetWindowTextA(ctx->hOutputEdit, "");
+                    ctx->state.decrypted = FALSE;
+                    ctx->state.decrypted_type = CONTENT_TYPE_NONE;
+                    ctx->state.encrypted = FALSE;
+                    ctx->state.decrypt_attempt_failed = TRUE;
+                    show_error(hwnd,
+                        "Échec de la préparation de l'image déchiffrée.",
+                        "Erreur Déchiffrement");
+                    cleanup_crypto_operation(op);
+                    update_buttons(ctx);
+                    return;
                 }
+                secure_set_edit_text(ctx->hOutputEdit, hex, strlen(hex));
+                secure_free(hex);
                 ctx->state.decrypted_type = CONTENT_TYPE_IMAGE;
             }
 

@@ -1,7 +1,7 @@
 /**
  * Cryptage_Core.c
  * Algorithmes cryptographiques et fonctions de base
- * Version 3804
+ * Version 3805
  * (c) Bernard DÉMARET - 2026
  */
 

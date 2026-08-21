@@ -1,6 +1,6 @@
 /**
  * Cryptage_State.h
- * Structures d'état - Version 3804
+ * Structures d'état - Version 3805
  * (c) Bernard DÉMARET - 2026
  */
 
