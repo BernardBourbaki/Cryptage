@@ -1,6 +1,6 @@
 /**
  * Cryptage.h
- * Header principal - Version 3805
+ * Header principal - Version 3806
  * (c) Bernard DÉMARET - 2026
  */
 

@@ -1,6 +1,6 @@
 /**
  * Cryptage_UI.c
- * Interface utilisateur unique - Version 3805
+ * Interface utilisateur unique - Version 3806
  * (c) Bernard DÉMARET - 2026
  */
 
@@ -388,9 +388,13 @@ void handle_import(HWND hwnd, AppContext* ctx) {
                 version, ctx->state.mem_kib / 1024, data_len);
             show_success(hwnd, msg, "Import");
         } else if (type == FILE_TYPE_IMAGE) {
+            // V38.0.6 : original_extension peut être NULL si dup_extension() a
+            // échoué dans detect_file_type() ; un %s sur NULL est un comportement
+            // indéfini côté runtime C Windows (contrairement à glibc).
             snprintf(msg, sizeof(msg),
                 "Image %s importée\n%zu octets",
-                ctx->state.original_extension, data_len);
+                ctx->state.original_extension ? ctx->state.original_extension : "?",
+                data_len);
             show_success(hwnd, msg, "Import");
         }
         // V38 : zone Entrée en lecture seule pour binaire/image/.crypt
@@ -620,7 +624,7 @@ void handle_decrypt(HWND hwnd, AppContext* ctx) {
             ctx->state.decrypt_attempt_failed = TRUE;
             return;
         }
-        
+
         uint32_t version = read_uint32_le(bin_data);
         if (version != CURRENT_VERSION) {
             show_error(hwnd, "Format de fichier crypté non reconnu",

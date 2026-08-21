@@ -1,6 +1,6 @@
 /**
  * Cryptage_UI_Common.c
- * Fonctions UI communes - Version 3805
+ * Fonctions UI communes - Version 3806
  * (c) Bernard DÉMARET - 2026
  */
 
@@ -334,7 +334,11 @@ FileType detect_file_type(const unsigned char* data, size_t data_len,
                 secure_free(ctx->state.original_extension);
             }
             ctx->state.original_extension = dup_extension("jpg");
-            ctx->state.original_extension_len = 4;
+            // V38.0.6 : dup_extension() peut échouer (secure_malloc). NULL doit rester
+            // l'unique signal d'absence d'extension connue pour les appelants
+            // (handle_import, handle_export_image) - ne jamais leur laisser croire
+            // à une longueur valide sur un pointeur NULL.
+            ctx->state.original_extension_len = ctx->state.original_extension ? 4 : 0;
             return FILE_TYPE_IMAGE;
         }
 
@@ -344,7 +348,11 @@ FileType detect_file_type(const unsigned char* data, size_t data_len,
                 secure_free(ctx->state.original_extension);
             }
             ctx->state.original_extension = dup_extension("png");
-            ctx->state.original_extension_len = 4;
+            // V38.0.6 : dup_extension() peut échouer (secure_malloc). NULL doit rester
+            // l'unique signal d'absence d'extension connue pour les appelants
+            // (handle_import, handle_export_image) - ne jamais leur laisser croire
+            // à une longueur valide sur un pointeur NULL.
+            ctx->state.original_extension_len = ctx->state.original_extension ? 4 : 0;
             return FILE_TYPE_IMAGE;
         }
 
@@ -354,7 +362,11 @@ FileType detect_file_type(const unsigned char* data, size_t data_len,
                 secure_free(ctx->state.original_extension);
             }
             ctx->state.original_extension = dup_extension("bmp");
-            ctx->state.original_extension_len = 4;
+            // V38.0.6 : dup_extension() peut échouer (secure_malloc). NULL doit rester
+            // l'unique signal d'absence d'extension connue pour les appelants
+            // (handle_import, handle_export_image) - ne jamais leur laisser croire
+            // à une longueur valide sur un pointeur NULL.
+            ctx->state.original_extension_len = ctx->state.original_extension ? 4 : 0;
             return FILE_TYPE_IMAGE;
         }
     }

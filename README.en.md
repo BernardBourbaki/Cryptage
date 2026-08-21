@@ -1,8 +1,8 @@
-# Cryptage V38.0.5
+# Cryptage V38.0.6
 
 **Secure encryption for text files and images**
 
-[![Version](https://img.shields.io/badge/version-38.0.5-blue.svg)](https://github.com/BernardBourbaki/Cryptage/releases)
+[![Version](https://img.shields.io/badge/version-38.0.6-blue.svg)](https://github.com/BernardBourbaki/Cryptage/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![OpenSSL](https://img.shields.io/badge/OpenSSL-3.2+-red.svg)](https://www.openssl.org/)
 
@@ -17,7 +17,7 @@
 
 ### Version compatibility
 
-* **V37 / V37.1 / V37.2 / V37.2.1 / V37.3 / V37.3.1 / V38.0.0 / V38.0.1 / V38.0.2 / V38.0.3 / V38.0.4 / V38.0.5**: Decrypts **ONLY** .crypt files created with V37+
+* **V37 / V37.1 / V37.2 / V37.2.1 / V37.3 / V37.3.1 / V38.0.0 / V38.0.1 / V38.0.2 / V38.0.3 / V38.0.4 / V38.0.5 / V38.0.6**: Decrypts **ONLY** .crypt files created with V37+
 * **V31-V36**: Use [Cryptage V36.1](https://github.com/BernardBourbaki/Cryptage/releases/tag/v36.1) to decrypt older files
 
 ### Limits
@@ -33,7 +33,7 @@
 
 ### Windows (Executable)
 
-1. Download Cryptage_V38.0.5.exe from [Releases](https://github.com/BernardBourbaki/Cryptage/releases/latest)
+1. Download Cryptage_V38.0.6.exe from [Releases](https://github.com/BernardBourbaki/Cryptage/releases/latest)
 2. Verify the SHA256 checksum (see checksums.txt)
 3. Run the executable (no installation required)
 
@@ -48,12 +48,12 @@
 
 1. For a local, lightweight build, ideal for testing:
 ```bash
-gcc -finput-charset=UTF-8 -fexec-charset=CP1252 Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V38.0.5.exe -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
+gcc -finput-charset=UTF-8 -fexec-charset=CP1252 Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V38.0.6.exe -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
 ```
 
 2. To build the portable, highly robust, fully optimized version yourself - the one offered for download:
 ```bash
-gcc -static -static-libgcc -Os -s -flto -fno-ident -fno-asynchronous-unwind-tables -ffunction-sections -fdata-sections -fstack-protector-strong -finput-charset=UTF-8 -fexec-charset=CP1252 -D_FORTIFY_SOURCE=2 -DNDEBUG -I/c/msys64/mingw64/include -L/c/msys64/mingw64/lib Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V38.0.5.exe -Wl,--gc-sections -Wl,--build-id=none -lssl -lcrypto -lwinpthread -lws2_32 -lcrypt32 -lgdi32 -lcomctl32 -mwindows
+gcc -static -static-libgcc -Os -s -flto -fno-ident -fno-asynchronous-unwind-tables -ffunction-sections -fdata-sections -fstack-protector-strong -finput-charset=UTF-8 -fexec-charset=CP1252 -D_FORTIFY_SOURCE=2 -DNDEBUG -I/c/msys64/mingw64/include -L/c/msys64/mingw64/lib Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V38.0.6.exe -Wl,--gc-sections -Wl,--build-id=none -lssl -lcrypto -lwinpthread -lws2_32 -lcrypt32 -lgdi32 -lcomctl32 -mwindows
 ```
 **Note**: This command is designed for **MSYS2 MinGW-w64** with the default include paths (`/c/msys64/mingw64`). Adjust `-I` and `-L` to match your own installation if needed.
 
@@ -110,7 +110,7 @@ The quick-help panel, fully visible since V37.1, remains accessible via the butt
 * Use passwords of at least 16 characters
 * Keep your passwords in a secure password manager
 * Test decryption **before** deleting the original
-* Keep several copies of the Cryptage_V38.0.5.exe program
+* Keep several copies of the Cryptage_V38.0.6.exe program
 
 ❌ **DON'T**:
 
@@ -144,6 +144,17 @@ Argon2id memory (4): in KiB
 [TAG - 16 bytes]
 [CIPHERTEXT - variable]
 ```
+
+## 📊 What's new in V38.0.6 (August 21, 2026)
+
+### Post-release robustness fix
+
+* 🛡️ **NULL check on original_extension**: `dup_extension()` (used by `detect_file_type()` for JPEG/PNG/BMP) may fail on critical memory allocation failure. The import success message (`handle_import`) dereferenced this pointer unchecked via a `%s` in `snprintf`, undefined behavior that could crash on the Windows C runtime. The associated length (`original_extension_len`) is now only set if allocation succeeded.
+
+### Compatibility
+
+* 🔧 Unchanged .crypt format: full compatibility V38.0.5 ↔ V38.0.6
+* 🔧 Build: MSVC / MinGW-w64 with OpenSSL 3.2+
 
 ## 📊 What's new in V38.0.5 (August 21, 2026)
 
