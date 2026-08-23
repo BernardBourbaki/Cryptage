@@ -15,18 +15,6 @@ static BOOL check_virtuallock_result(void* ptr, size_t size, HWND hwnd);
 
 static SecureMemRegistry g_secureRegistry = {NULL, {0}, FALSE};
 
-// V33 - Table de correspondance des codes d'extension
-static const struct {
-    uint32_t code;
-    const char* extension;
-} extension_table[] = {
-    {EXT_JPG, "jpg"},
-    {EXT_PNG, "png"},
-    {EXT_BMP, "bmp"},
-    {EXT_NONE, NULL}
-};
-#define NUM_EXTENSIONS (sizeof(extension_table) / sizeof(extension_table[0]))
-
 void secure_mem_init(void) {
     if (!g_secureRegistry.initialized) {
         InitializeCriticalSection(&g_secureRegistry.lock);
@@ -404,15 +392,6 @@ uint32_t get_extension_code(const char* ext) {
     return EXT_NONE;
 }
 
-const char* get_extension_from_code(uint32_t code) {
-    for (size_t i = 0; i < NUM_EXTENSIONS; i++) {
-        if (extension_table[i].code == code) {
-            return extension_table[i].extension;
-        }
-    }
-    return NULL;
-}
-
 int derive_key_argon2id(const char* password, const unsigned char* salt, unsigned char* enc_key, unsigned int memory_cost_kib) {
     EVP_KDF* kdf = EVP_KDF_fetch(NULL, "ARGON2ID", NULL);
     if (!kdf) return 0;
@@ -465,7 +444,7 @@ BOOL is_text_file(const char* filename) {
     if (!filename) return FALSE;
     const char* ext = strrchr(filename, '.');
     if (!ext) return FALSE;
-    return (stricmp(ext, ".txt") == 0 || stricmp(ext, ".TXT") == 0);
+    return (stricmp(ext, ".txt") == 0);
 }
 
 BOOL is_image_file(const char* filename) {
