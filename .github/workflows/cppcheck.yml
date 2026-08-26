@@ -1,0 +1,30 @@
+name: cppcheck
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+jobs:
+  cppcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer cppcheck
+        run: sudo apt-get update && sudo apt-get install -y cppcheck
+
+      - name: Lancer cppcheck sur les sources
+        run: |
+          cppcheck --enable=warning,style,unusedFunction --inconclusive --force \
+            --error-exitcode=0 \
+            Cryptage_Core.c Cryptage_UI.c Cryptage_UI_Common.c Cryptage_Main.c \
+            2>&1 | tee cppcheck-report.txt
+
+      - name: Publier le rapport
+        uses: actions/upload-artifact@v4
+        with:
+          name: cppcheck-report
+          path: cppcheck-report.txt
