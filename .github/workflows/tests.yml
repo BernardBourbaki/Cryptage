@@ -1,0 +1,33 @@
+name: Tests Cryptage Core
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Installer MSYS2 + MinGW + OpenSSL
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-openssl
+
+      - name: Compiler et exécuter les tests
+        shell: msys2 {0}
+        run: |
+          gcc -I. -finput-charset=UTF-8 -fexec-charset=CP1252 \
+              tests/test_crypto_core.c tests/test_stubs.c Cryptage_Core.c \
+              -o tests/test_crypto.exe \
+              -lssl -lcrypto -luser32
+          ./tests/test_crypto.exe
