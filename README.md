@@ -1,8 +1,8 @@
-# Cryptage V38.0.6
+# Cryptage V38.0.7
 
 **Chiffrement sécurisé de fichiers texte et images**
 
-[![Version](https://img.shields.io/badge/version-38.0.6-blue.svg)](https://github.com/BernardBourbaki/Cryptage/releases)
+[![Version](https://img.shields.io/badge/version-38.0.7-blue.svg)](https://github.com/BernardBourbaki/Cryptage/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![OpenSSL](https://img.shields.io/badge/OpenSSL-3.2+-red.svg)](https://www.openssl.org/)
 
@@ -17,7 +17,7 @@
 
 ### Compatibilité des versions
 
-* **V37 / V37.1 / V37.2 / V37.2.1 / V37.3 / V37.3.1 / V38.0.0 / V38.0.1 / V38.0.2 / V38.0.3 / V38.0.4 / V38.0.5 / V38.0.6** : Déchiffre **UNIQUEMENT** les fichiers .crypt créés avec V37+
+* **V37 / V37.1 / V37.2 / V37.2.1 / V37.3 / V37.3.1 / V38.0.0 / V38.0.1 / V38.0.2 / V38.0.3 / V38.0.4 / V38.0.5 / V38.0.6 / V38.0.7** : Déchiffre **UNIQUEMENT** les fichiers .crypt créés avec V37+
 * **V31-V36** : Utilisez [Cryptage V36.1](https://github.com/BernardBourbaki/Cryptage/releases/tag/v36.1) pour déchiffrer les anciens fichiers
 
 ### Limites
@@ -33,7 +33,7 @@
 
 ### Windows (Exécutable)
 
-1. Téléchargez Cryptage_V38.0.6.exe depuis [Releases](https://github.com/BernardBourbaki/Cryptage/releases/latest)
+1. Téléchargez Cryptage_V38.0.7.exe depuis [Releases](https://github.com/BernardBourbaki/Cryptage/releases/latest)
 2. Vérifiez le checksum SHA256 (voir checksums.txt)
 3. Lancez l'exécutable (pas d'installation requise)
 
@@ -48,12 +48,12 @@
 
 1. Si vous voulez une version locale, légère, idéale pour des tests :
 ```bash
-gcc -finput-charset=UTF-8 -fexec-charset=CP1252 Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V38.0.6.exe -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
+gcc -finput-charset=UTF-8 -fexec-charset=CP1252 Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V38.0.7.exe -lssl -lcrypto -lgdi32 -lcomctl32 -mwindows
 ```
 
 2. Si vous voulez compiler vous-même la version portable, très robuste et optimisée au maximum, qui est proposée en téléchargement :
 ```bash
-gcc -static -static-libgcc -Os -s -flto -fno-ident -fno-asynchronous-unwind-tables -ffunction-sections -fdata-sections -fstack-protector-strong -finput-charset=UTF-8 -fexec-charset=CP1252 -D_FORTIFY_SOURCE=2 -DNDEBUG -I/c/msys64/mingw64/include -L/c/msys64/mingw64/lib Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V38.0.6.exe -Wl,--gc-sections -Wl,--build-id=none -lssl -lcrypto -lwinpthread -lws2_32 -lcrypt32 -lgdi32 -lcomctl32 -mwindows
+gcc -static -static-libgcc -Os -s -flto -fno-ident -fno-asynchronous-unwind-tables -ffunction-sections -fdata-sections -fstack-protector-strong -finput-charset=UTF-8 -fexec-charset=CP1252 -D_FORTIFY_SOURCE=2 -DNDEBUG -I/c/msys64/mingw64/include -L/c/msys64/mingw64/lib Cryptage_Main.c Cryptage_Core.c Cryptage_UI_Common.c Cryptage_UI.c -o Cryptage_V38.0.7.exe -Wl,--gc-sections -Wl,--build-id=none -lssl -lcrypto -lwinpthread -lws2_32 -lcrypt32 -lgdi32 -lcomctl32 -mwindows
 ```
 **Note** : Cette commande est conçue pour **MSYS2 MinGW-w64** avec les chemins d'inclusion par défaut (`/c/msys64/mingw64`). Adaptez `-I` et `-L` à votre propre installation si nécessaire.
 
@@ -110,7 +110,7 @@ Le panneau d'aide rapide, entièrement visible depuis la V37.1, reste accessible
 * Utilisez des mots de passe de 16 caractères minimum
 * Conservez vos mots de passe dans un gestionnaire sécurisé
 * Testez le déchiffrement **avant** de supprimer l'original
-* Gardez plusieurs copies du logiciel Cryptage_V38.0.6.exe
+* Gardez plusieurs copies du logiciel Cryptage_V38.0.7.exe
 
 ❌ **À NE PAS FAIRE** :
 
@@ -144,6 +144,15 @@ Mémoire Argon2id (4) : en KiB
 [TAG - 16 octets]
 [CIPHERTEXT - variable]
 ```
+
+## 📊 Nouveautés V38.0.7 (28 août 2026)
+
+* 🔧 **Correction mémoire** : secure_malloc() échouait sur une allocation de 0 octet (VirtualAlloc rejette cette taille), empêchant le déchiffrement d'un texte chiffré vide. Corrigé en allouant au moins 1 octet dans ce cas. Défaut inatteignable via l'interface (les chemins texte et image bloquent déjà une entrée vide en amont) — trouvé et vérifié via un nouveau harnais de tests unitaires du noyau cryptographique.
+
+### Compatibilité
+
+* 🔧 Format .crypt inchangé : compatibilité totale V38.0.6 ↔ V38.0.7
+* 🔧 Compilation : MSVC / MinGW-w64 avec OpenSSL 3.2+
 
 ## 📊 Nouveautés V38.0.6 (21 août 2026)
 

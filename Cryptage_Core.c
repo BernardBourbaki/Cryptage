@@ -1,7 +1,7 @@
 /**
  * Cryptage_Core.c
  * Algorithmes cryptographiques et fonctions de base
- * Version 3806
+ * Version 3807
  * (c) Bernard DÉMARET - 2026
  */
 
@@ -46,14 +46,14 @@ void* secure_malloc(HWND hwnd, size_t size, BOOL force_lock) {
     if (!g_secureRegistry.initialized) {
         secure_mem_init();
     }
-
-    void* ptr = VirtualAlloc(NULL, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    size_t alloc_size = (size > 0) ? size : 1; /* VirtualAlloc refuse une taille de 0 */
+    void* ptr = VirtualAlloc(NULL, alloc_size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
     if (!ptr) {
         if (hwnd) show_error(hwnd, "Échec de l'allocation mémoire sécurisée", "Erreur Mémoire");
         return NULL;
     }
 
-    SecureZeroMemory(ptr, size);
+    SecureZeroMemory(ptr, alloc_size);
 
     SecureMemNode* node = malloc(sizeof(SecureMemNode));
     if (!node) {
@@ -63,7 +63,7 @@ void* secure_malloc(HWND hwnd, size_t size, BOOL force_lock) {
     }
 
     node->ptr = ptr;
-    node->size = size;
+    node->size = alloc_size;
 
     if (force_lock) {
         check_virtuallock_result(ptr, size, hwnd);
