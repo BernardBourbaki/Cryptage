@@ -23,7 +23,7 @@ jobs:
             mingw-w64-x86_64-gcc
             mingw-w64-x86_64-openssl
 
-      - name: Compiler et exécuter les tests
+      - name: Tests du noyau cryptographique
         shell: msys2 {0}
         run: |
           gcc -I. -finput-charset=UTF-8 -fexec-charset=CP1252 \
@@ -31,3 +31,23 @@ jobs:
               -o tests/test_crypto.exe \
               -lssl -lcrypto -luser32
           ./tests/test_crypto.exe
+
+      - name: Tests d'integration UI
+        shell: msys2 {0}
+        run: |
+          gcc -c -I. -finput-charset=UTF-8 -fexec-charset=CP1252 \
+              -DCreateThread=Test_CreateThread Cryptage_UI.c -o tests/Cryptage_UI.o
+          gcc -c -I. -finput-charset=UTF-8 -fexec-charset=CP1252 \
+              Cryptage_Core.c -o tests/Cryptage_Core.o
+          gcc -c -I. -finput-charset=UTF-8 -fexec-charset=CP1252 \
+              Cryptage_UI_Common.c -o tests/Cryptage_UI_Common.o
+          gcc -c -I. -finput-charset=UTF-8 -fexec-charset=CP1252 \
+              tests/test_ui_integration.c -o tests/test_ui_integration.o
+          gcc -c -I. -finput-charset=UTF-8 -fexec-charset=CP1252 \
+              tests/test_ui_wraps.c -o tests/test_ui_wraps.o
+          gcc tests/Cryptage_UI.o tests/Cryptage_Core.o tests/Cryptage_UI_Common.o \
+              tests/test_ui_integration.o tests/test_ui_wraps.o \
+              -o tests/test_ui.exe \
+              -lssl -lcrypto -luser32 -lgdi32 -lcomctl32 -lcomdlg32 \
+              -Wl,--wrap=show_error -Wl,--wrap=show_success -Wl,--wrap=display_openssl_error
+          ./tests/test_ui.exe
