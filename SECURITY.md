@@ -118,6 +118,6 @@ Nous remercions les chercheurs en sécurité suivants pour leurs contributions r
 
 ## Ressources supplémentaires
 
-- [Bonnes pratiques de sécurité](README.md#🔒-bonnes-pratiques-de-sécurité)
+- [Bonnes pratiques de sécurité](README.md#-bonnes-pratiques-de-sécurité)
 - [Architecture](https://github.com/BernardBourbaki/Cryptage/wiki/Architecture)
 - [Format du fichier .crypt](https://github.com/BernardBourbaki/Cryptage/wiki/Format-du-fichier-crypt)
