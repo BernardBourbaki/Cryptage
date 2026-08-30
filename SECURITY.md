@@ -4,6 +4,7 @@
 
 | Version |          Support          |
 | ------- | ------------------------- |
+| 38.x    | ✅ Support actif          |
 | 37.x    | ✅ Support actif          |
 | 36.1    | ⚠️ Maintenance uniquement |
 | < 36.0  | ❌ Non supportée          |
@@ -113,7 +114,7 @@ Nous remercions les chercheurs en sécurité suivants pour leurs contributions r
 ---
 
 **Version de cette politique** : 1.0  
-**Dernière mise à jour** : Décembre 2025
+**Dernière mise à jour** : Août 2026
 
 ## Ressources supplémentaires
 
