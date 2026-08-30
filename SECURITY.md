@@ -117,6 +117,6 @@ Nous remercions les chercheurs en sécurité suivants pour leurs contributions r
 
 ## Ressources supplémentaires
 
-- [Guide de chiffrement sécurisé](https://github.com/BernardBourbaki/Cryptage/wiki/Secure-Encryption-Guide) *(à créer)*
-- [Architecture cryptographique](https://github.com/BernardBourbaki/Cryptage/wiki/Crypto-Architecture) *(à créer)*
-- [Format de fichier .crypt](https://github.com/BernardBourbaki/Cryptage/wiki/File-Format-Specification) *(à créer)*
+- [Bonnes pratiques de sécurité](README.md#-bonnes-pratiques-de-sécurité)
+- [Architecture](https://github.com/BernardBourbaki/Cryptage/wiki/Architecture)
+- [Format du fichier .crypt](https://github.com/BernardBourbaki/Cryptage/wiki/Format-du-fichier-crypt)
