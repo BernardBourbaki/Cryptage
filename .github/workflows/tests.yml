@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Checkout du code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Installer MSYS2 + MinGW + OpenSSL
         uses: msys2/setup-msys2@v2
