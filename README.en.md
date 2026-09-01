@@ -153,6 +153,12 @@ Argon2id memory (4): in KiB
 * 🔧 Unchanged .crypt format: full compatibility V38.0.6 ↔ V38.0.7
 * 🔧 Build: MSVC / MinGW-w64 with OpenSSL 3.2+
 
+## 🔎 Multi-AI Structural Audit
+
+On September 2, 2026, a consolidated synthesis of three structural audit reports on the repository was submitted to cross-validation by **8 AI models**. All eight models unanimously selected the ChatGPT synthesis.
+
+→ [Read the full report in the Wiki](https://github.com/BernardBourbaki/Cryptage/wiki/Audit-structurel-multi%E2%80%90IA-%E2%80%94-2026%E2%80%9009%E2%80%9002)
+
 ## 📊 What's new in V38.0.6 (August 21, 2026)
 
 ### Post-release robustness fix
