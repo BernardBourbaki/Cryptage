@@ -158,7 +158,7 @@ Mémoire Argon2id (4) : en KiB
 
 Le 2 septembre 2026, une synthèse consolidée de trois rapports d’audit structurel du dépôt a été soumise à une validation croisée par **8 modèles d’IA**. Les huit modèles ont unanimement retenu la synthèse de ChatGPT.
 
-→ Consulter le rapport complet dans le Wiki : [[Audit structurel multi‐IA — 2026‐09‐02]]
+→ [Consulter le rapport complet dans le Wiki](https://github.com/BernardBourbaki/Cryptage/wiki/Audit-structurel-multi%E2%80%90IA-%E2%80%94-2026%E2%80%9009%E2%80%9002)
 
 ## 📊 Nouveautés V38.0.6 (21 août 2026)
 
