@@ -9,6 +9,30 @@
 | 36.1    | ⚠️ Maintenance uniquement |
 | < 36.0  | ❌ Non supportée          |
 
+## Modèle de menace
+
+### Ce que Cryptage protège
+- **Confidentialité et intégrité des données au repos** : un fichier `.crypt`
+  non déchiffré est protégé par AES-256-GCM (chiffrement authentifié).
+- **Résistance à la force brute sur le mot de passe** : dérivation de clé
+  via Argon2id.
+- **Détection d'altération** : le tag d'authentification GCM rejette un
+  fichier `.crypt` corrompu ou modifié au déchiffrement.
+
+### Ce que Cryptage ne protège pas
+- **Un mot de passe faible ou réutilisé** : la sécurité dépend entièrement
+  du mot de passe choisi ; aucune récupération n'est possible en cas de perte.
+- **Une machine déjà compromise** : keylogger ou accès mémoire par un
+  logiciel malveillant disposant de privilèges suffisants.
+- **Les résidus en mémoire de la zone « Entrée » éditable** : voir
+  [Bonnes pratiques de sécurité](README.md#-bonnes-pratiques-de-sécurité)
+  dans le README pour le mécanisme exact (historique d'annulation Ctrl+Z
+  propre aux contrôles Win32 Edit).
+- **Les métadonnées** : nom, taille approximative et date du fichier
+  original ne sont pas masqués par le format `.crypt`.
+- **La divulgation du mot de passe sous la contrainte** : pas de mécanisme
+  de déni plausible.
+
 ## Signaler une vulnérabilité
 
 ### Divulgation responsable
