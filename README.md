@@ -154,6 +154,12 @@ Mémoire Argon2id (4) : en KiB
 * 🔧 Format .crypt inchangé : compatibilité totale V38.0.6 ↔ V38.0.7
 * 🔧 Compilation : MSVC / MinGW-w64 avec OpenSSL 3.2+
 
+## 🔎 Audit structurel multi-IA
+
+Le 2 septembre 2026, une synthèse consolidée de trois rapports d’audit structurel du dépôt a été soumise à une validation croisée par **8 modèles d’IA**. Les huit modèles ont unanimement retenu la synthèse de ChatGPT.
+
+→ Consulter le rapport complet dans le Wiki : [[Audit structurel multi‐IA — 2026‐09‐02]]
+
 ## 📊 Nouveautés V38.0.6 (21 août 2026)
 
 ### Correction de robustesse post-release
