@@ -25,7 +25,7 @@
 * **Taille maximale** : 10 Mo par fichier
 * **Formats supportés** :
   * Texte : .txt
-  * Images : .jpg, .png, .bmp
+  * Images : .jpg, .jpeg, .png, .bmp
   * Crypté : .crypt
 * **Mot de passe** : Aucune récupération possible - **utilisez un gestionnaire de mots de passe**
 
