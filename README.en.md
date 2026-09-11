@@ -25,7 +25,7 @@
 * **Maximum size**: 10 MB per file
 * **Supported formats**:
   * Text: .txt
-  * Images: .jpg, .png, .bmp
+  * Images: .jpg, .jpeg, .png, .bmp
   * Encrypted: .crypt
 * **Password**: No recovery possible - **use a password manager**
 
