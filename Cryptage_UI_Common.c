@@ -1,6 +1,6 @@
 /**
  * Cryptage_UI_Common.c
- * Fonctions UI communes - Version 3807
+ * Fonctions UI communes - Version 3808
  * (c) Bernard DÉMARET - 2026
  */
 
