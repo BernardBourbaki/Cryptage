@@ -249,33 +249,6 @@ Argon2id memory (4): in KiB
 * 🔧 **Post-release fixes** (applied to `Cryptage_UI.c` and the `Cryptage_V38.0.0.exe` executable online without version number change):
   * Export after decrypting pasted hexadecimal text: fixed a regression where the EXPORT buttons remained inactive after a successful decryption from hexadecimal pasted into the "Entrée" zone (email/messenger workflow). The plaintext was correctly displayed in "Sortie", but the absence of an imported file blocked exportation. This behavior is now functional: **paste hex → DÉCHIFFRER → EXPORTER** works as expected.
 
-## 📊 Version history
-
-### V37.3.1 (August 12, 2026)
-
-* 🐛 Restored the reset of the original extension (`original_extension`) during file import.
-
-### V37.3 (August 12, 2026)
-
-* 🐛 Fixed an inconsistency between the plaintext limit (10 MB) and the corresponding .crypt file limit
-* ✨ Full support for Unicode file paths
-
-### V37.2.1 (August 9, 2026)
-
-* 🐛 Clean reset of the original file extension between successive imports
-
-### V37.2 (August 9, 2026)
-
-* 🐛 Memory security and robustness fixes
-
-### V37.1 (December 17, 2025)
-
-* ✨ Interface improvements
-
-### V37
-
-* ✨ Simplified single-window interface, limit raised to 10 MB
-
 ## 🐛 Known issues
 
 * Display of Cyrillic or Japanese characters in the interface text zones may be limited by Windows ANSI controls. Encryption/decryption of these characters works correctly internally (via UTF-8), but their visual display may be replaced by `?`. Unicode file names are fully supported.
