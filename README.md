@@ -249,33 +249,6 @@ Mémoire Argon2id (4) : en KiB
 * 🔧 **Corrections post-release** (appliquées au fichier `Cryptage_UI.c` et à l'exécutable `Cryptage_V38.0.0.exe` en ligne sans changement de numéro de version) :
   * Exportation après déchiffrement d'un texte hexadécimal collé : correction d'une régression où les boutons EXPORTER restaient inactifs après un déchiffrement réussi à partir d'un hexadécimal collé dans la zone "Entrée" (flux mail/messagerie). Le texte clair était correctement affiché dans "Sortie", mais l'absence de fichier importé bloquait l'exportation. Ce comportement est désormais fonctionnel : **coller l'hex → DÉCHIFFRER → EXPORTER** fonctionne comme attendu.
 
-## 📊 Historique des versions
-
-### V37.3.1 (12 août 2026)
-
-* 🐛 Rétablissement de la réinitialisation de l'extension d'origine (`original_extension`) lors de l'import d'un fichier
-
-### V37.3 (12 août 2026)
-
-* 🐛 Correction d'une incohérence entre la limite du texte en clair (10 Mo) et celle du fichier .crypt correspondant
-* ✨ Prise en charge complète des chemins de fichiers Unicode
-
-### V37.2.1 (9 août 2026)
-
-* 🐛 Réinitialisation propre de l'extension d'origine entre imports successifs
-
-### V37.2 (9 août 2026)
-
-* 🐛 Corrections de sécurité mémoire et de robustesse
-
-### V37.1 (17 décembre 2025)
-
-* ✨ Améliorations de l'interface
-
-### V37
-
-* ✨ Interface unique simplifiée, limite portée à 10 Mo
-
 ## 🐛 Problèmes connus
 
 * L'affichage de caractères cyrilliques ou japonais dans les zones de texte de l'interface peut être limité par les contrôles ANSI de Windows. Le chiffrement/déchiffrement de ces caractères fonctionne correctement en interne (via UTF-8), mais leur affichage visuel peut être remplacé par des `?`. Les noms de fichiers Unicode sont pleinement supportés.
