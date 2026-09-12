@@ -50,7 +50,7 @@
 #define DERIVED_KEY_LEN KEY_LEN
 
 // Longueur des données additionnelles authentifiées (AAD)
-#define AAD_LEN 24  // Version(4) + Reserved(16) + MemKiB(4)
+#define AAD_LEN 24  // Version(4) + Reserved(12) + PlaintextLen(4) + MemKiB(4)
 
 // Offsets dans l'AAD
 #define VERSION_OFFSET 0          // Offset de la version
